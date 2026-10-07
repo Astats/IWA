@@ -594,10 +594,10 @@ It must contain:
 > Status markers: `[ ]` todo, `[x]` done, `⏸` blocked (with reason).
 
 ### Phase 0 — Foundation
-- [ ] 0.1 Repository bootstrap
-- [ ] 0.2 Lint, format and boundaries
-- [ ] 0.3 Package skeletons
-- [ ] 0.4 CI pipeline
+- [x] 0.1 Repository bootstrap — 2026-10-07 — pnpm 12.10.1 (global pnpm upgraded from 10; pnpm 12 ships as a native binary), Node 24 LTS, turbo 2.11.
+- [x] 0.2 Lint, format and boundaries — 2026-10-07 — ESLint 9 + typescript-eslint strict-type-checked; self-test lints one fixture per banned pattern (tooling/lint-rules.test.ts).
+- [x] 0.3 Package skeletons — 2026-10-07 — Vite 8, React 19.3, Tailwind 4, shadcn/ui radix-nova; Playwright @smoke under the production CSP.
+- [x] 0.4 CI pipeline — 2026-10-07 — ci.yml, codeql.yml, release.yml (SBOM), renovate.json; actions pinned by SHA. CI not executed yet — no remote. actionlint not available locally (Docker daemon off), so it runs as a CI job.
 
 ### Phase 1 — Local MVP
 - [ ] 1.1 Core domain
@@ -644,7 +644,12 @@ It must contain:
 - [ ] 🏁 M5 tagged `v1.0.0`
 
 ### Notes / decisions log
-- _(agent appends dated entries here)_
+- 2026-10-07 — **TypeScript 6.0.3 instead of 7.0.2.** typescript-eslint (required by §2) supports TypeScript `<6.1.0`; TS 7 (native port) is not supported yet. Renovate is capped accordingly.
+- 2026-10-07 — **ESLint 9.39 instead of 10.x.** `eslint-plugin-jsx-a11y` peers on ESLint ≤ 9.
+- 2026-10-07 — **`dinero.js` 2.0.2 ships `dinero.js/currencies`**; `@dinero.js/currencies` only exists as an alpha and is not used.
+- 2026-10-07 — The CSP is injected as a `<meta>` tag in production builds only (Vite dev needs inline HMR code). `frame-ancestors` is left out of the meta CSP because browsers ignore it there and log an error; Caddy sets it in Phase 5 (SEC-W15).
+- 2026-10-07 — Root `lint` runs ESLint once over the repo (single flat config, typed linting via projectService); `typecheck`/`build` go through Turborepo; `test` is `vitest run` over root projects (TEST_PLAN §3.4).
+- 2026-10-07 — Until MSW arrives with the Phase 3 provider mocks, the web-unit setup stubs `fetch` to reject, so any unmocked network call fails the test.
 
 ### Open questions
 - _(agent appends questions for the human here)_
