@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+.turbo/
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.vitest-attachments/
+__screenshots__/
+.lighthouseci/
+
+# env & secrets — never commit
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pem
+
+# native
+android/app/release
+ios/App/Pods
+
+# editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
