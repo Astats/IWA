@@ -29,6 +29,8 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, 'src') },
   },
+  // sqlite-wasm resolves its .wasm file relative to its own module; pre-bundling would break that.
+  optimizeDeps: { exclude: ['@sqlite.org/sqlite-wasm'] },
   server: { port: 5173, strictPort: true },
   preview: { port: 4173, strictPort: true },
   build: {

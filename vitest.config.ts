@@ -16,6 +16,7 @@ export default defineConfig({
     projects: [
       'packages/*/vitest.config.ts',
       'apps/*/vitest.config.ts',
+      'apps/*/vitest.browser.config.ts',
       'tooling/vitest.config.ts',
       ...tzProjects,
     ],

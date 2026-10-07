@@ -8,5 +8,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "*.config.ts", "vitest.setup.ts", "csp.d.mts"]
+  "include": ["src", "*.config.ts", "vitest.setup.ts", "csp.d.mts", "vitest.browser.config.ts"]
 }
