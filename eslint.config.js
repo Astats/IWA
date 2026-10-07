@@ -17,6 +17,9 @@ const TEST_FILES = [
   '**/vitest.setup.ts',
 ];
 
+/** Node build/CI scripts: they read build output from computed paths by design. */
+const SCRIPT_FILES = ['scripts/**/*.{js,mjs,ts}'];
+
 /** The only module allowed to touch localStorage/sessionStorage (theme + language prefs). */
 const UI_PREFS_FILE = 'apps/web/src/lib/ui-prefs.ts';
 
@@ -225,5 +228,9 @@ export default tseslint.config(
       'security/detect-non-literal-fs-filename': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
     },
+  },
+  {
+    files: SCRIPT_FILES,
+    rules: { 'security/detect-non-literal-fs-filename': 'off' },
   },
 );

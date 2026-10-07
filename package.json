@@ -17,10 +17,17 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:browser": "vitest run --project web-browser",
+    "test:e2e:all": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:a11y": "playwright test --project=chromium --grep @a11y",
+    "test:security": "playwright test --project=chromium --grep @security"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@eslint/js": "9.39.5",
+    "@playwright/test": "1.63.0",
     "@types/node": "^24.19.1",
     "@vitest/coverage-v8": "5.0.3",
     "eslint": "9.39.5",
