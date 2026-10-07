@@ -603,7 +603,7 @@ It must contain:
 - [x] 1.1 Core domain — 2026-10-07 — Zod 4 schemas, exact bigint money via dinero.js/bigint, presets via pure Y/M/D math (TZ Riga/New York projects), passphrase policy; coverage 100% lines / 93.6% branches.
 - [x] 1.2 Crypto — 2026-10-07 — Argon2id (hash-wasm, KAT vectors cross-checked with Node crypto.argon2), envelope AES-GCM, vault A/B slots, downgrade guard; 40 tests. Production KDF ≈ 170 ms in Node locally.
 - [x] 1.3 Database layer — 2026-10-07 — Drizzle sqlite-proxy over SqlDriver; sqlite-wasm driver for Node + worker; custom migrator; contract suite (63 cases) passes on sqlite-wasm and the in-memory fakes; golden DB test-data/db/schema-v1.sqlite.
-- [ ] 1.4 Web storage worker
+- [x] 1.4 Web storage worker — 2026-10-07 — DoD e2e (e2e/specs/storage.spec.ts): create + data, reload + unlock, wrong passphrase generic, OPFS/IDB marker scan clean; plus 14 browser-mode tests (OPFS + IndexedDB fallback, debounce, crash safety).
 - [x] 1.5 App shell, onboarding and lock — 2026-10-07 — routes + guards, onboarding (policy, acknowledgement), unlock with progressive delay, auto-lock, settings, theme, i18n; e2e J1/J7/J8/J9/J14 + axe (light/dark) green; no CSP violations.
 - [ ] 1.6 Categories management
 - [ ] 1.7 Transactions CRUD

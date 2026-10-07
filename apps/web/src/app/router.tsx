@@ -4,6 +4,7 @@ import { Link, Navigate, Outlet, useLocation, type RouteObject } from 'react-rou
 
 import { AppShell } from '@/components/layout/AppShell';
 import { useSession, type SessionStatus } from '@/di';
+import { CategoriesPage } from '@/features/categories/CategoriesPage';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
@@ -120,7 +121,7 @@ export const routes: RouteObject[] = [
           { path: 'transactions', element: <PlaceholderPage titleKey="transactions.title" /> },
           { path: 'transactions/new', element: <PlaceholderPage titleKey="transactions.new" /> },
           { path: 'transactions/:id', element: <PlaceholderPage titleKey="transactions.edit" /> },
-          { path: 'categories', element: <PlaceholderPage titleKey="categories.title" /> },
+          { path: 'categories', element: <CategoriesPage /> },
           { path: 'import-export', element: <PlaceholderPage titleKey="importExport.title" /> },
           { path: 'backup', element: <PlaceholderPage titleKey="backup.title" /> },
           { path: 'settings', element: <SettingsPage /> },

@@ -105,7 +105,55 @@
     "edit": "Edit transaction"
   },
   "categories": {
-    "title": "Categories"
+    "title": "Categories",
+    "expenseHeading": "Expense categories",
+    "incomeHeading": "Income categories",
+    "newExpense": "New expense category",
+    "newIncome": "New income category",
+    "create": "Create category",
+    "name": "Name",
+    "nameInvalid": "Enter a name of 1 to 50 characters.",
+    "kind": "Type",
+    "color": "Color",
+    "icon": "Icon",
+    "empty": "No categories yet.",
+    "created": "Category \"{{name}}\" created.",
+    "updated": "Category \"{{name}}\" saved.",
+    "deleted": "Category \"{{name}}\" deleted.",
+    "editLabel": "Edit {{name}}",
+    "deleteLabel": "Delete {{name}}",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "deleteTitle": "Delete {{name}}",
+    "deleteConfirm": "Delete the category \"{{name}}\"?",
+    "inUse": "\"{{name}}\" is used by {{count}} transaction(s). Move them to another category before deleting it.",
+    "noReassignTarget": "Create another category of the same type first.",
+    "reassignTo": "Move transactions to",
+    "reassignAndDelete": "Move transactions and delete",
+    "icons": {
+      "home": "Home",
+      "utensils": "Food",
+      "car": "Car",
+      "plug": "Utilities",
+      "heart-pulse": "Health",
+      "film": "Entertainment",
+      "shopping-bag": "Shopping",
+      "circle-ellipsis": "Other",
+      "briefcase": "Work",
+      "laptop": "Laptop",
+      "gift": "Gift",
+      "piggy-bank": "Savings",
+      "wallet": "Wallet",
+      "graduation-cap": "Education",
+      "plane": "Travel",
+      "baby": "Children",
+      "paw-print": "Pets",
+      "dumbbell": "Sports",
+      "smartphone": "Phone",
+      "book": "Books",
+      "coffee": "Coffee",
+      "tag": "Tag"
+    }
   },
   "importExport": {
     "title": "Import / Export"
@@ -140,5 +188,14 @@
     "tooLong": "This is too long.",
     "min": "The value is too small.",
     "max": "The value is too large."
+  },
+  "errors": {
+    "NOT_FOUND": "This item no longer exists.",
+    "VALIDATION": "Some values are not valid.",
+    "CATEGORY_NOT_FOUND": "Choose an existing category.",
+    "CATEGORY_KIND_MISMATCH": "The category must be of the same type (income or expense).",
+    "CATEGORY_IN_USE": "This category is used by transactions. Move them first.",
+    "DUPLICATE_CATEGORY_NAME": "A category with this name already exists.",
+    "DUPLICATE_ID": "This item already exists."
   }
 }
