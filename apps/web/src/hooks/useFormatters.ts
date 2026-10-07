@@ -18,6 +18,10 @@ export function useFormatters() {
       month: 'short',
       timeZone: 'UTC',
     });
+    const compactFormat = new Intl.NumberFormat(locale, {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    });
     let currencyNames: Intl.DisplayNames | null = null;
     try {
       currencyNames = new Intl.DisplayNames([locale], { type: 'currency' });
@@ -33,6 +37,8 @@ export function useFormatters() {
       /** Formats a YYYY-MM month. */
       month: (isoMonth: string) => monthFormat.format(new Date(`${isoMonth}-01T00:00:00Z`)),
       currencyName: (code: string) => currencyNames?.of(code) ?? code,
+      /** Short axis labels (1.2K, 3M); chart geometry only, never exact amounts. */
+      compact: (value: number) => compactFormat.format(value),
     };
   }, [locale]);
 }

@@ -31,6 +31,28 @@ beforeEach(() => {
   vi.stubGlobal('fetch', (input: unknown) =>
     Promise.reject(new Error(`Unmocked network request: ${String(input)}`)),
   );
+  // jsdom has no ResizeObserver or layout: report a fixed size so chart containers can render.
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(private readonly callback: ResizeObserverCallback) {}
+      observe(target: Element) {
+        const contentRect = {
+          width: 480,
+          height: 256,
+          top: 0,
+          left: 0,
+          bottom: 256,
+          right: 480,
+          x: 0,
+          y: 0,
+        };
+        this.callback([{ target, contentRect } as unknown as ResizeObserverEntry], this);
+      }
+      unobserve() {}
+      disconnect() {}
+    },
+  );
   // jsdom has no matchMedia (used by the theme switcher).
   vi.stubGlobal(
     'matchMedia',

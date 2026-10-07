@@ -128,3 +128,25 @@
     @apply font-sans;
   }
 }
+
+/* Chart series colors (dataviz reference palette slots 1-2, validated for CVD and contrast on the
+   card surface in both themes). Text in charts uses the text tokens, never series colors. */
+:root {
+  --chart-income: #2a78d6;
+  --chart-expense: #eb6834;
+}
+.dark {
+  --chart-income: #3987e5;
+  --chart-expense: #d95926;
+}
+
+/* Respect reduced-motion preferences: no transitions or animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

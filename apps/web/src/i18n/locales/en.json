@@ -97,7 +97,23 @@
     "locked": "Budget is locked"
   },
   "dashboard": {
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "period": "Period",
+    "totals": "Totals",
+    "income": "Income",
+    "expense": "Expenses",
+    "balance": "Balance",
+    "byCategoryTitle": "Expenses by category",
+    "monthlyTitle": "Income and expenses, last 12 months",
+    "recent": "Recent transactions",
+    "viewAll": "View all",
+    "noExpenses": "No expenses in this period.",
+    "otherCategories": "Other categories",
+    "showTable": "Show as table",
+    "month": "Month",
+    "monthlySummary": "Bar chart of income and expenses per month for the last 12 months. Total income {{income}}, total expenses {{expense}}.",
+    "categorySummary": "Bar chart of expenses by category: {{list}}.",
+    "chartsCurrencyNote": "Charts show amounts in {{currency}} only. Other currencies appear in the totals."
   },
   "transactions": {
     "title": "Transactions",

@@ -10,14 +10,16 @@ import { cn } from '@/lib/utils';
 export function TransactionCards({
   rows,
   categories,
+  label,
 }: {
   rows: Transaction[];
   categories: Map<string, Category>;
+  label?: string;
 }) {
   const { t } = useTranslation();
   const fmt = useFormatters();
   return (
-    <ul className="grid gap-1" aria-label={t('transactions.title')}>
+    <ul className="grid gap-1" aria-label={label ?? t('transactions.title')}>
       {rows.map((tx) => {
         const category = categories.get(tx.categoryId);
         return (

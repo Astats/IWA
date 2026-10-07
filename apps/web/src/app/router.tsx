@@ -5,6 +5,7 @@ import { Link, Navigate, Outlet, useLocation, type RouteObject } from 'react-rou
 import { AppShell } from '@/components/layout/AppShell';
 import { useSession, type SessionStatus } from '@/di';
 import { CategoriesPage } from '@/features/categories/CategoriesPage';
+import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
@@ -122,7 +123,7 @@ export const routes: RouteObject[] = [
           </RequireStatus>
         ),
         children: [
-          { index: true, element: <PlaceholderPage titleKey="dashboard.title" /> },
+          { index: true, element: <DashboardPage /> },
           { path: 'transactions', element: <TransactionsPage /> },
           { path: 'transactions/new', element: <TransactionEditorPage /> },
           { path: 'transactions/:id', element: <TransactionEditorPage /> },
