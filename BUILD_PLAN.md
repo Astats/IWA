@@ -600,7 +600,7 @@ It must contain:
 - [x] 0.4 CI pipeline — 2026-10-07 — ci.yml, codeql.yml, release.yml (SBOM), renovate.json; actions pinned by SHA. CI not executed yet — no remote. actionlint not available locally (Docker daemon off), so it runs as a CI job.
 
 ### Phase 1 — Local MVP
-- [ ] 1.1 Core domain
+- [x] 1.1 Core domain — 2026-10-07 — Zod 4 schemas, exact bigint money via dinero.js/bigint, presets via pure Y/M/D math (TZ Riga/New York projects), passphrase policy; coverage 100% lines / 93.6% branches.
 - [ ] 1.2 Crypto
 - [ ] 1.3 Database layer
 - [ ] 1.4 Web storage worker
@@ -650,6 +650,8 @@ It must contain:
 - 2026-10-07 — The CSP is injected as a `<meta>` tag in production builds only (Vite dev needs inline HMR code). `frame-ancestors` is left out of the meta CSP because browsers ignore it there and log an error; Caddy sets it in Phase 5 (SEC-W15).
 - 2026-10-07 — Root `lint` runs ESLint once over the repo (single flat config, typed linting via projectService); `typecheck`/`build` go through Turborepo; `test` is `vitest run` over root projects (TEST_PLAN §3.4).
 - 2026-10-07 — Until MSW arrives with the Phase 3 provider mocks, the web-unit setup stubs `fetch` to reject, so any unmocked network call fails the test.
+- 2026-10-07 — Repository interfaces add a `SnapshotRepository` (exportSnapshot/replaceAll/mergeAll) for backup restore, `exportAll({ includeDeleted })` for tombstones, and category helpers (`reassignTransactions`, `reorder`, `countTransactions`, `seedDefaults`). Totals are `bigint` so sums never lose precision.
+- 2026-10-07 — Zod 4 `.partial()` keeps `.default()`: `transactionPatchSchema` re-declares `note` without a default so a patch never wipes the note (caught by a unit test).
 
 ### Open questions
 - _(agent appends questions for the human here)_

@@ -130,6 +130,7 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
       'no-restricted-imports': [
         'error',
         {
