@@ -10,14 +10,28 @@
   "scripts": {
     "dev": "turbo run dev --filter=web",
     "build": "turbo run build",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.json",
+    "test": "vitest run",
     "test:e2e": "playwright test --project=chromium",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "turbo": "2.11.7"
+    "@eslint/js": "9.39.5",
+    "@types/node": "^24.19.1",
+    "@vitest/coverage-v8": "5.0.3",
+    "eslint": "9.39.5",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-security": "4.2.0",
+    "globals": "17.13.0",
+    "prettier": "3.9.9",
+    "turbo": "2.11.7",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "5.0.3"
   }
 }

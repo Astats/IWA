@@ -18,17 +18,17 @@ pnpm dev          # web app at http://localhost:5173
 
 ## Common scripts (run from the repo root)
 
-| Script | What it does |
-| --- | --- |
-| `pnpm dev` | Start the web app in dev mode |
-| `pnpm build` | Production build of all packages/apps |
-| `pnpm lint` | ESLint (flat config, includes security and boundary rules) |
-| `pnpm typecheck` | `tsc --noEmit` in every package |
-| `pnpm test` | All unit/component/integration tests (Vitest projects) |
-| `pnpm test:coverage` | Same, with coverage thresholds enforced |
-| `pnpm test:browser` | Vitest Browser Mode tests (real Chromium) |
-| `pnpm test:e2e` | Playwright end-to-end tests against the production build |
-| `pnpm format` / `pnpm format:check` | Prettier |
+| Script                              | What it does                                               |
+| ----------------------------------- | ---------------------------------------------------------- |
+| `pnpm dev`                          | Start the web app in dev mode                              |
+| `pnpm build`                        | Production build of all packages/apps                      |
+| `pnpm lint`                         | ESLint (flat config, includes security and boundary rules) |
+| `pnpm typecheck`                    | `tsc --noEmit` in every package                            |
+| `pnpm test`                         | All unit/component/integration tests (Vitest projects)     |
+| `pnpm test:coverage`                | Same, with coverage thresholds enforced                    |
+| `pnpm test:browser`                 | Vitest Browser Mode tests (real Chromium)                  |
+| `pnpm test:e2e`                     | Playwright end-to-end tests against the production build   |
+| `pnpm format` / `pnpm format:check` | Prettier                                                   |
 
 ## Repository layout
 
