@@ -4,7 +4,8 @@ export type DomainErrorCode =
   | 'CATEGORY_NOT_FOUND'
   | 'CATEGORY_KIND_MISMATCH'
   | 'CATEGORY_IN_USE'
-  | 'DUPLICATE_CATEGORY_NAME';
+  | 'DUPLICATE_CATEGORY_NAME'
+  | 'DUPLICATE_ID';
 
 /** A business-rule violation. `message` is for developers; UIs translate `code`. */
 export class DomainError extends Error {

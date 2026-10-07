@@ -4,6 +4,7 @@ export * from './errors';
 export * from './ids';
 export * from './kdf';
 export * from './money';
+export * from './objects';
 export * from './passphrase';
 export * from './repositories';
 export * from './seeds';

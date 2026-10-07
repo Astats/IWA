@@ -4,14 +4,23 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./sqlite-wasm": "./src/sqlite-wasm-driver.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate && node scripts/bundle-migrations.mjs",
+    "db:check": "node scripts/bundle-migrations.mjs --check"
   },
   "dependencies": {
     "@budget/core": "workspace:*",
-    "@budget/crypto": "workspace:*"
+    "@budget/crypto": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
+    "drizzle-orm": "0.45.3"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "10.6.0",
+    "drizzle-kit": "0.31.11"
   }
 }

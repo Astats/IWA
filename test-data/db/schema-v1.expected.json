@@ -1,0 +1,204 @@
+{
+  "categories": [
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000001",
+      "name": "Housing",
+      "kind": "expense",
+      "color": "#0f766e",
+      "icon": "home",
+      "sortOrder": 0,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000002",
+      "name": "Food",
+      "kind": "expense",
+      "color": "#ea580c",
+      "icon": "utensils",
+      "sortOrder": 1,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000003",
+      "name": "Transport",
+      "kind": "expense",
+      "color": "#2563eb",
+      "icon": "car",
+      "sortOrder": 2,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000004",
+      "name": "Utilities",
+      "kind": "expense",
+      "color": "#ca8a04",
+      "icon": "plug",
+      "sortOrder": 3,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000005",
+      "name": "Health",
+      "kind": "expense",
+      "color": "#dc2626",
+      "icon": "heart-pulse",
+      "sortOrder": 4,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000006",
+      "name": "Entertainment",
+      "kind": "expense",
+      "color": "#9333ea",
+      "icon": "film",
+      "sortOrder": 5,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000007",
+      "name": "Shopping",
+      "kind": "expense",
+      "color": "#db2777",
+      "icon": "shopping-bag",
+      "sortOrder": 6,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000008",
+      "name": "Other",
+      "kind": "expense",
+      "color": "#64748b",
+      "icon": "circle-ellipsis",
+      "sortOrder": 7,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000009",
+      "name": "Salary",
+      "kind": "income",
+      "color": "#16a34a",
+      "icon": "briefcase",
+      "sortOrder": 0,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000010",
+      "name": "Freelance",
+      "kind": "income",
+      "color": "#0891b2",
+      "icon": "laptop",
+      "sortOrder": 1,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000011",
+      "name": "Gifts",
+      "kind": "income",
+      "color": "#c026d3",
+      "icon": "gift",
+      "sortOrder": 2,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000012",
+      "name": "Interest",
+      "kind": "income",
+      "color": "#65a30d",
+      "icon": "piggy-bank",
+      "sortOrder": 3,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000013",
+      "name": "Other",
+      "kind": "income",
+      "color": "#64748b",
+      "icon": "circle-ellipsis",
+      "sortOrder": 4,
+      "createdAt": "2026-03-15T10:00:01.000Z",
+      "updatedAt": "2026-03-15T10:00:01.000Z",
+      "deletedAt": null
+    }
+  ],
+  "transactions": [
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000014",
+      "kind": "expense",
+      "amountMinor": 1250,
+      "currency": "EUR",
+      "categoryId": "0192f0c1-7a3b-7c3d-8e4f-000000000002",
+      "date": "2026-03-01",
+      "note": "Groceries ā č 🍎",
+      "createdAt": "2026-03-15T10:00:02.000Z",
+      "updatedAt": "2026-03-15T10:00:02.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000017",
+      "kind": "expense",
+      "amountMinor": 1250,
+      "currency": "EUR",
+      "categoryId": "0192f0c1-7a3b-7c3d-8e4f-000000000002",
+      "date": "2026-03-01",
+      "note": "deleted later",
+      "createdAt": "2026-03-15T10:00:05.000Z",
+      "updatedAt": "2026-03-15T10:00:06.000Z",
+      "deletedAt": "2026-03-15T10:00:06.000Z"
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000015",
+      "kind": "income",
+      "amountMinor": 350000,
+      "currency": "EUR",
+      "categoryId": "0192f0c1-7a3b-7c3d-8e4f-000000000009",
+      "date": "2026-03-02",
+      "note": "Salary",
+      "createdAt": "2026-03-15T10:00:03.000Z",
+      "updatedAt": "2026-03-15T10:00:03.000Z",
+      "deletedAt": null
+    },
+    {
+      "id": "0192f0c1-7a3b-7c3d-8e4f-000000000016",
+      "kind": "expense",
+      "amountMinor": 999,
+      "currency": "USD",
+      "categoryId": "0192f0c1-7a3b-7c3d-8e4f-000000000002",
+      "date": "2026-03-03",
+      "note": "",
+      "createdAt": "2026-03-15T10:00:04.000Z",
+      "updatedAt": "2026-03-15T10:00:04.000Z",
+      "deletedAt": null
+    }
+  ],
+  "settings": {
+    "baseCurrency": "EUR",
+    "locale": "en",
+    "theme": "system",
+    "autoLockMinutes": 5,
+    "schemaVersion": 1
+  }
+}

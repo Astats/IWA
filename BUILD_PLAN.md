@@ -602,7 +602,7 @@ It must contain:
 ### Phase 1 — Local MVP
 - [x] 1.1 Core domain — 2026-10-07 — Zod 4 schemas, exact bigint money via dinero.js/bigint, presets via pure Y/M/D math (TZ Riga/New York projects), passphrase policy; coverage 100% lines / 93.6% branches.
 - [x] 1.2 Crypto — 2026-10-07 — Argon2id (hash-wasm, KAT vectors cross-checked with Node crypto.argon2), envelope AES-GCM, vault A/B slots, downgrade guard; 40 tests. Production KDF ≈ 170 ms in Node locally.
-- [ ] 1.3 Database layer
+- [x] 1.3 Database layer — 2026-10-07 — Drizzle sqlite-proxy over SqlDriver; sqlite-wasm driver for Node + worker; custom migrator; contract suite (63 cases) passes on sqlite-wasm and the in-memory fakes; golden DB test-data/db/schema-v1.sqlite.
 - [ ] 1.4 Web storage worker
 - [ ] 1.5 App shell, onboarding and lock
 - [ ] 1.6 Categories management
@@ -654,6 +654,9 @@ It must contain:
 - 2026-10-07 — Zod 4 `.partial()` keeps `.default()`: `transactionPatchSchema` re-declares `note` without a default so a patch never wipes the note (caught by a unit test).
 - 2026-10-07 — The production-KDF timing test enforces ≤ 2 s everywhere but the ≥ 200 ms floor only when `CI` is set: this dev machine derives in ~170 ms, below the floor that TEST_PLAN §2.5 defines for CI hardware.
 - 2026-10-07 — Vault AAD split: the DEK is wrapped with AAD = magic|version|kdf|salt (stable across saves), the data with AAD = every header byte incl. generation and wrapped DEK. `changePassphrase` writes both slots so the old passphrase cannot open the older slot.
+- 2026-10-07 — `SqlDriver.export()` returns `Promise<Uint8Array>` (the worker driver is async) and the driver adds `values()` (positional rows for Drizzle sqlite-proxy). Transactions receive a tx-scoped executor; drivers serialize all calls with a mutex so a transaction never interleaves with other statements.
+- 2026-10-07 — Note search uses `instr(lower(note), lower(?)) > 0`: literal (no LIKE wildcards to escape), case-insensitive for ASCII like SQLite `lower()`; the in-memory fakes mirror that exactly.
+- 2026-10-07 — pnpm 12 blocks dependency install scripts by default; `pnpm-workspace.yaml` allow-lists only `esbuild` (needed by drizzle-kit).
 
 ### Open questions
 - _(agent appends questions for the human here)_
