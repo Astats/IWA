@@ -7,7 +7,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  ...(process.env.CI ? { workers: 2 } : {}),
+  // More than 2 parallel headless browsers made localhost requests stall on the Windows dev
+  // machine (reproduced with plain fetch() from a static page, no app code involved).
+  workers: 2,
   reporter: process.env.CI
     ? [['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }], ['github']]
     : [['list'], ['html', { open: 'never' }]],

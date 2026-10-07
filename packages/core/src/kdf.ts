@@ -1,3 +1,5 @@
+import './zod-config';
+
 import { z } from 'zod';
 
 /** Argon2id parameters (AD12). `memoryKiB` is in KiB. */

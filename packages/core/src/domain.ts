@@ -1,3 +1,5 @@
+import './zod-config';
+
 import { z } from 'zod';
 
 import { DomainError } from './errors';

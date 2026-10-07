@@ -604,7 +604,7 @@ It must contain:
 - [x] 1.2 Crypto — 2026-10-07 — Argon2id (hash-wasm, KAT vectors cross-checked with Node crypto.argon2), envelope AES-GCM, vault A/B slots, downgrade guard; 40 tests. Production KDF ≈ 170 ms in Node locally.
 - [x] 1.3 Database layer — 2026-10-07 — Drizzle sqlite-proxy over SqlDriver; sqlite-wasm driver for Node + worker; custom migrator; contract suite (63 cases) passes on sqlite-wasm and the in-memory fakes; golden DB test-data/db/schema-v1.sqlite.
 - [ ] 1.4 Web storage worker
-- [ ] 1.5 App shell, onboarding and lock
+- [x] 1.5 App shell, onboarding and lock — 2026-10-07 — routes + guards, onboarding (policy, acknowledgement), unlock with progressive delay, auto-lock, settings, theme, i18n; e2e J1/J7/J8/J9/J14 + axe (light/dark) green; no CSP violations.
 - [ ] 1.6 Categories management
 - [ ] 1.7 Transactions CRUD
 - [ ] 1.8 Transaction list: sorting and filtering
@@ -657,6 +657,11 @@ It must contain:
 - 2026-10-07 — `SqlDriver.export()` returns `Promise<Uint8Array>` (the worker driver is async) and the driver adds `values()` (positional rows for Drizzle sqlite-proxy). Transactions receive a tx-scoped executor; drivers serialize all calls with a mutex so a transaction never interleaves with other statements.
 - 2026-10-07 — Note search uses `instr(lower(note), lower(?)) > 0`: literal (no LIKE wildcards to escape), case-insensitive for ASCII like SQLite `lower()`; the in-memory fakes mirror that exactly.
 - 2026-10-07 — pnpm 12 blocks dependency install scripts by default; `pnpm-workspace.yaml` allow-lists only `esbuild` (needed by drizzle-kit).
+- 2026-10-07 — Zod 4 JIT disabled (`z.config({ jitless: true })` in core) because its `new Function` probe triggers a CSP violation without `unsafe-eval`.
+- 2026-10-07 — Radix modal primitives (Dialog/Select/DropdownMenu) inject `<style>` tags via react-remove-scroll, which `style-src 'self'` blocks. The UI uses native `<select>`/`<dialog>` and checkbox inputs instead; shadcn is used for Button/Input/Card/Alert/Table etc.
+- 2026-10-07 — Explicit user saves call `vault.flush()` so a save is durable before the tab can close; the worker's 500 ms debounce still coalesces bursts inside an action (found by J9 reloading right after a save).
+- 2026-10-07 — E2E runs with 2 workers: with more parallel headless Chromium instances, localhost requests stall on this Windows machine (reproduced with plain fetch() from a static page, no app code). The guard observes requests instead of intercepting them (`route` interception added more flakiness). If the storage worker fails to load, vault calls now fail fast and the app shows a generic error instead of loading forever.
+- 2026-10-07 — Coverage runs all Vitest projects including browser mode (Vitest collects no coverage when `--project` filters are used). `db.worker.ts` is excluded from coverage because v8 browser coverage does not instrument worker realms; its behaviour is covered by `db.worker.browser.test.ts`.
 
 ### Open questions
-- _(agent appends questions for the human here)_
+- Step 1.4 DoD item 4 (OPFS bytes contain no known note string) is verified in a real Chromium by the browser-mode test; the Playwright version is added in Step 1.6 (first UI field with free text), after which 1.4 is ticked.

@@ -12,13 +12,13 @@ export interface SessionState {
   /** False when the browser denied persistent storage (show a warning banner). */
   storagePersisted: boolean | null;
   /** Re-reads vault state from the storage worker. */
-  refresh(): Promise<void>;
-  createVault(
+  refresh: () => Promise<void>;
+  createVault: (
     passphrase: string,
     setup: Pick<Settings, 'baseCurrency' | 'locale'>,
-  ): Promise<VaultResult>;
-  unlock(passphrase: string): Promise<VaultResult>;
-  lock(): Promise<void>;
+  ) => Promise<VaultResult>;
+  unlock: (passphrase: string) => Promise<VaultResult>;
+  lock: () => Promise<void>;
 }
 
 export type SessionStore = StoreApi<SessionState>;

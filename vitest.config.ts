@@ -27,6 +27,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'html', 'lcov'],
+      // Coverage runs all projects (incl. browser mode): Vitest collects nothing when --project filters are used.
       include: ['packages/*/src/**', 'apps/web/src/**'],
       exclude: [
         '**/*.test.{ts,tsx}',
@@ -36,6 +37,13 @@ export default defineConfig({
         '**/*.d.ts',
         '**/index.ts',
         'apps/web/src/main.tsx',
+        // Production wiring of the real worker; exercised by the e2e suite.
+        'apps/web/src/app/browser-services.ts',
+        'apps/web/src/test/**',
+        'apps/web/src/storage/storage-scan.ts',
+        // Runs inside a Web Worker, which browser-mode v8 coverage does not instrument; its behaviour
+        // is covered by src/storage/db.worker.browser.test.ts.
+        'apps/web/src/storage/db.worker.ts',
         'apps/web/src/components/ui/**',
       ],
       // Floors per package (TEST_PLAN §3.2). Coverage is a floor, not a goal.

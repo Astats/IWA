@@ -1,0 +1,144 @@
+{
+  "app": {
+    "name": "Budget",
+    "loading": "Loading…",
+    "skipToContent": "Skip to main content",
+    "genericError": "Something went wrong. Please try again.",
+    "storageWarning": "Your browser may clear this app's data when storage runs low. Install the app or allow persistent storage, and keep a backup.",
+    "updateAvailable": "A new version is available.",
+    "reload": "Reload",
+    "dismiss": "Dismiss",
+    "notFound": "Page not found",
+    "backHome": "Back to the dashboard"
+  },
+  "nav": {
+    "main": "Main",
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "importExport": "Import / Export",
+    "backup": "Backup",
+    "settings": "Settings",
+    "lock": "Lock"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "undo": "Undo",
+    "confirm": "Confirm",
+    "show": "Show",
+    "hide": "Hide",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "required": "Required",
+    "income": "Income",
+    "expense": "Expense",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "passphrase": {
+    "label": "Passphrase",
+    "confirmLabel": "Repeat passphrase",
+    "hint": "At least 12 characters. A few random words work well.",
+    "strength": "Strength: {{label}}",
+    "strengthLabels": {
+      "0": "too weak",
+      "1": "weak",
+      "2": "fair",
+      "3": "good",
+      "4": "strong"
+    },
+    "errors": {
+      "TOO_SHORT": "Use at least 12 characters.",
+      "TOO_LONG": "This passphrase is too long.",
+      "COMMON": "This passphrase is too common. Choose something less predictable.",
+      "MISMATCH": "The passphrases do not match."
+    },
+    "toggle": "Show passphrase",
+    "toggleHide": "Hide passphrase"
+  },
+  "onboarding": {
+    "title": "Welcome to Budget",
+    "intro": "Track income and expenses privately. Your data stays on this device and is encrypted with a passphrase only you know.",
+    "start": "Get started",
+    "step": "Step {{current}} of {{total}}",
+    "passphraseTitle": "Create a passphrase",
+    "passphraseIntro": "Your passphrase encrypts all your data. You need it every time you unlock the app.",
+    "lossWarning": "If you forget your passphrase, your data cannot be recovered. Nobody can reset it for you — not even us.",
+    "acknowledge": "I understand that a lost passphrase means lost data.",
+    "acknowledgeRequired": "Please confirm that you understand.",
+    "preferencesTitle": "Preferences",
+    "baseCurrency": "Base currency",
+    "baseCurrencyHint": "Used by default for new transactions.",
+    "language": "Language and region",
+    "create": "Create my vault",
+    "creating": "Encrypting your vault…",
+    "createFailed": "The vault could not be created. Please try again."
+  },
+  "unlock": {
+    "title": "Unlock Budget",
+    "intro": "Enter your passphrase to decrypt your data.",
+    "submit": "Unlock",
+    "unlocking": "Unlocking…",
+    "failed": "Unlock failed. Check your passphrase and try again.",
+    "wait": "Too many attempts. Try again in {{seconds}} s.",
+    "corrupt": "Your stored data could not be read. Restore a backup to continue.",
+    "unsupported": "This data was created by a newer version of the app. Please update the app."
+  },
+  "lock": {
+    "locked": "Budget is locked"
+  },
+  "dashboard": {
+    "title": "Dashboard"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "new": "New transaction",
+    "edit": "Edit transaction"
+  },
+  "categories": {
+    "title": "Categories"
+  },
+  "importExport": {
+    "title": "Import / Export"
+  },
+  "backup": {
+    "title": "Backup"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "baseCurrency": "Base currency",
+    "language": "Language and region",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "autoLock": "Auto-lock after (minutes)",
+    "autoLockHint": "The app locks after this many minutes without activity.",
+    "saved": "Settings saved.",
+    "changePassphrase": "Change passphrase",
+    "currentPassphrase": "Current passphrase",
+    "newPassphrase": "New passphrase",
+    "changePassphraseSubmit": "Change passphrase",
+    "passphraseChanged": "Passphrase changed.",
+    "passphraseChangeFailed": "The passphrase could not be changed. Check your current passphrase."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "This value is not valid.",
+    "tooLong": "This is too long.",
+    "min": "The value is too small.",
+    "max": "The value is too large."
+  }
+}

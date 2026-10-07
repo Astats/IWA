@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage --project \"!web-browser\"",
+    "test:coverage": "vitest run --coverage",
     "test:browser": "vitest run --project web-browser",
     "test:e2e:all": "playwright test",
     "test:e2e:ui": "playwright test --ui",

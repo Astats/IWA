@@ -1,7 +1,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
-import { afterEach, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi } from 'vitest';
+import * as axeMatchers from 'vitest-axe/matchers';
+
+import { initI18n } from '@/i18n';
+
+expect.extend(axeMatchers);
+
+initI18n('en-US');
 
 // Console guard (TEST_PLAN §3.2): any console.error/warn that a test did not expect fails it.
 // Tests that expect one call `allowConsole()` first.
@@ -24,10 +31,21 @@ beforeEach(() => {
   vi.stubGlobal('fetch', (input: unknown) =>
     Promise.reject(new Error(`Unmocked network request: ${String(input)}`)),
   );
+  // jsdom has no matchMedia (used by the theme switcher).
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  );
 });
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
   if (!consoleAllowed && consoleCalls.length > 0) {
     const first = consoleCalls[0]?.map(String).join(' ') ?? '';
     throw new Error(`Unexpected console output in test (${consoleCalls.length} call(s)): ${first}`);

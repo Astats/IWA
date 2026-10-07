@@ -22,19 +22,17 @@ export const test = base.extend<{ guard: Guard }>({
       const consoleMessages: string[] = [];
       const appOrigin = new URL(baseURL ?? 'http://localhost').origin;
 
-      await context.route('**/*', async (route) => {
-        const url = new URL(route.request().url());
-        if (
+      // Network allow-list (SEC-W12). Requests are observed rather than intercepted: routing every
+      // request (worker scripts, WASM) made module loads flaky under parallel load, and any foreign
+      // request fails the test either way. Provider mocks (Phase 3) add origins to ALLOWED_ORIGINS.
+      context.on('request', (request) => {
+        const url = new URL(request.url());
+        const allowed =
           url.protocol === 'data:' ||
           url.protocol === 'blob:' ||
           url.origin === appOrigin ||
-          ALLOWED_ORIGINS.has(url.origin)
-        ) {
-          await route.fallback();
-          return;
-        }
-        problems.push(`Request to non-allow-listed origin: ${url.origin}`);
-        await route.abort('blockedbyclient');
+          ALLOWED_ORIGINS.has(url.origin);
+        if (!allowed) problems.push(`Request to non-allow-listed origin: ${url.origin}`);
       });
 
       await page.exposeFunction('__reportCspViolation', (detail: string) => {

@@ -37,12 +37,10 @@ jobs:
         run: pnpm lint
       - name: Format check
         run: pnpm format:check
-      - name: Unit, component and DB integration tests (coverage)
-        run: pnpm test:coverage
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
-      - name: Browser integration tests (Chromium)
-        run: pnpm test:browser
+      - name: Unit, component, DB and browser integration tests (coverage)
+        run: pnpm test:coverage
       - name: Build (includes build-integrity checks)
         run: pnpm build
       - name: E2E (@smoke, @security, @a11y on Chromium)

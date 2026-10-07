@@ -13,13 +13,28 @@ export type {
   VaultStatus,
 } from './worker-api';
 
+export interface DbWorkerHandle {
+  api: Remote<DbWorkerApi>;
+  /** Rejects if the worker fails to load or crashes; never resolves otherwise. */
+  failed: Promise<never>;
+  terminate: () => void;
+}
+
 /** Starts a storage worker and returns its typed RPC proxy. */
-export function startDbWorker(): { api: Remote<DbWorkerApi>; terminate: () => void } {
+export function startDbWorker(): DbWorkerHandle {
   const worker = new Worker(new URL('./db.worker.ts', import.meta.url), {
     type: 'module',
     name: 'budget-db',
   });
-  return { api: wrap<DbWorkerApi>(worker), terminate: () => worker.terminate() };
+  const failed = new Promise<never>((_, reject) => {
+    const fail = () => {
+      reject(new Error('Storage worker failed'));
+    };
+    worker.addEventListener('error', fail);
+    worker.addEventListener('messageerror', fail);
+  });
+  failed.catch(() => undefined); // observed via Promise.race by callers
+  return { api: wrap<DbWorkerApi>(worker), failed, terminate: () => worker.terminate() };
 }
 
 /** Repositories backed by the worker's database (BUILD_PLAN AD7). */

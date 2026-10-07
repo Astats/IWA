@@ -222,12 +222,16 @@ export default tseslint.config(
     rules: {
       'no-restricted-properties': [
         'error',
-        ...restrictedProperties.filter((r) => r.object !== 'Math'),
+        ...restrictedProperties.filter((r) => r.object !== 'Math' && !isStorageRule(r)),
       ],
+      // Tests inspect Web Storage to prove nothing sensitive is stored there (SEC-W03).
+      'no-restricted-globals': 'off',
       'no-restricted-imports': 'off',
       // Test files legitimately build paths and read fixtures from disk.
       'security/detect-non-literal-fs-filename': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      // expect(mock.method) passes methods unbound by design.
+      '@typescript-eslint/unbound-method': 'off',
     },
   },
   {
