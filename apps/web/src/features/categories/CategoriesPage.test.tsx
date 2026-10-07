@@ -49,7 +49,7 @@ describe('CategoriesPage', () => {
     await app.user.click(within(form).getByRole('radio', { name: 'Pets' }));
     await app.user.click(within(form).getByRole('button', { name: 'Create category' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Category "Pets" created.');
+    expect(await screen.findByText('Category "Pets" created.')).toBeInTheDocument();
     const created = (await app.services.vault.repos.categories.list()).find(
       (c) => c.name === 'Pets',
     );

@@ -43,11 +43,11 @@ export function Field({
           {hint}
         </p>
       )}
-      {error && (
-        <p id={errorId} className="text-xs font-medium text-destructive">
-          {error}
-        </p>
-      )}
+      {/* Always rendered (min height) so a message appearing on blur never shifts the layout
+          under the pointer, which would swallow a click on the button below. */}
+      <p id={errorId} className="min-h-4 text-xs font-medium text-destructive">
+        {error}
+      </p>
     </div>
   );
 }

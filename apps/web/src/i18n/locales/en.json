@@ -102,7 +102,30 @@
   "transactions": {
     "title": "Transactions",
     "new": "New transaction",
-    "edit": "Edit transaction"
+    "edit": "Edit transaction",
+    "empty": "No transactions yet.",
+    "kind": "Type",
+    "amount": "Amount",
+    "amountHint": "For example {{example}}",
+    "currency": "Currency",
+    "category": "Category",
+    "chooseCategory": "Choose a category",
+    "date": "Date",
+    "note": "Note",
+    "noteHint": "Optional, up to 500 characters.",
+    "saved": "Transaction saved.",
+    "deleted": "Transaction deleted.",
+    "restored": "Transaction restored.",
+    "errors": {
+      "AMOUNT_EMPTY": "Enter an amount.",
+      "AMOUNT_INVALID": "Enter a number, for example 12.50.",
+      "AMOUNT_NEGATIVE": "Enter a positive amount. Choose Expense for money going out.",
+      "AMOUNT_ZERO": "The amount must be greater than zero.",
+      "AMOUNT_TOO_MANY_DECIMALS": "This currency does not allow that many decimals.",
+      "AMOUNT_TOO_LARGE": "This amount is too large.",
+      "CATEGORY_REQUIRED": "Choose a category.",
+      "DATE": "Enter a valid date."
+    }
   },
   "categories": {
     "title": "Categories",

@@ -605,8 +605,8 @@ It must contain:
 - [x] 1.3 Database layer — 2026-10-07 — Drizzle sqlite-proxy over SqlDriver; sqlite-wasm driver for Node + worker; custom migrator; contract suite (63 cases) passes on sqlite-wasm and the in-memory fakes; golden DB test-data/db/schema-v1.sqlite.
 - [x] 1.4 Web storage worker — 2026-10-07 — DoD e2e (e2e/specs/storage.spec.ts): create + data, reload + unlock, wrong passphrase generic, OPFS/IDB marker scan clean; plus 14 browser-mode tests (OPFS + IndexedDB fallback, debounce, crash safety).
 - [x] 1.5 App shell, onboarding and lock — 2026-10-07 — routes + guards, onboarding (policy, acknowledgement), unlock with progressive delay, auto-lock, settings, theme, i18n; e2e J1/J7/J8/J9/J14 + axe (light/dark) green; no CSP violations.
-- [ ] 1.6 Categories management
-- [ ] 1.7 Transactions CRUD
+- [x] 1.6 Categories management — 2026-10-07 — grouped list, create/edit (name, kind, color, icon), move up/down reorder, delete with reassign; component tests + e2e J6 (blocked delete → reassign completed with 1.7).
+- [x] 1.7 Transactions CRUD — 2026-10-07 — RHF + Zod form with locale-aware amounts (no floats), currency/date defaults, kind-filtered categories, soft delete + Undo toast; e2e J2/J3/J4, SEC-W01 (note + category name).
 - [ ] 1.8 Transaction list: sorting and filtering
 - [ ] 1.9 Dashboard
 - [ ] 1.10 PWA and offline
@@ -662,6 +662,7 @@ It must contain:
 - 2026-10-07 — Explicit user saves call `vault.flush()` so a save is durable before the tab can close; the worker's 500 ms debounce still coalesces bursts inside an action (found by J9 reloading right after a save).
 - 2026-10-07 — E2E runs with 2 workers: with more parallel headless Chromium instances, localhost requests stall on this Windows machine (reproduced with plain fetch() from a static page, no app code). The guard observes requests instead of intercepting them (`route` interception added more flakiness). If the storage worker fails to load, vault calls now fail fast and the app shows a generic error instead of loading forever.
 - 2026-10-07 — Coverage runs all Vitest projects including browser mode (Vitest collects no coverage when `--project` filters are used). `db.worker.ts` is excluded from coverage because v8 browser coverage does not instrument worker realms; its behaviour is covered by `db.worker.browser.test.ts`.
+- 2026-10-07 — Field error messages always reserve their line: on blur validation an appearing message shifted the Save button under the pointer and swallowed the click (found by e2e; invisible in jsdom). The transaction editor does not cache single rows (`gcTime: 0`) so a background refetch never remounts the form mid-interaction.
 
 ### Open questions
 - Step 1.4 DoD item 4 (OPFS bytes contain no known note string) is verified in a real Chromium by the browser-mode test; the Playwright version is added in Step 1.6 (first UI field with free text), after which 1.4 is ticked.

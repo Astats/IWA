@@ -8,6 +8,8 @@ import { CategoriesPage } from '@/features/categories/CategoriesPage';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
+import { TransactionEditorPage } from '@/features/transactions/TransactionEditorPage';
+import { TransactionsPage } from '@/features/transactions/TransactionsPage';
 import { UnlockPage } from '@/features/unlock/UnlockPage';
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
@@ -118,9 +120,9 @@ export const routes: RouteObject[] = [
         ),
         children: [
           { index: true, element: <PlaceholderPage titleKey="dashboard.title" /> },
-          { path: 'transactions', element: <PlaceholderPage titleKey="transactions.title" /> },
-          { path: 'transactions/new', element: <PlaceholderPage titleKey="transactions.new" /> },
-          { path: 'transactions/:id', element: <PlaceholderPage titleKey="transactions.edit" /> },
+          { path: 'transactions', element: <TransactionsPage /> },
+          { path: 'transactions/new', element: <TransactionEditorPage /> },
+          { path: 'transactions/:id', element: <TransactionEditorPage /> },
           { path: 'categories', element: <CategoriesPage /> },
           { path: 'import-export', element: <PlaceholderPage titleKey="importExport.title" /> },
           { path: 'backup', element: <PlaceholderPage titleKey="backup.title" /> },
