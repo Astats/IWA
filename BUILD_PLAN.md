@@ -601,7 +601,7 @@ It must contain:
 
 ### Phase 1 — Local MVP
 - [x] 1.1 Core domain — 2026-10-07 — Zod 4 schemas, exact bigint money via dinero.js/bigint, presets via pure Y/M/D math (TZ Riga/New York projects), passphrase policy; coverage 100% lines / 93.6% branches.
-- [ ] 1.2 Crypto
+- [x] 1.2 Crypto — 2026-10-07 — Argon2id (hash-wasm, KAT vectors cross-checked with Node crypto.argon2), envelope AES-GCM, vault A/B slots, downgrade guard; 40 tests. Production KDF ≈ 170 ms in Node locally.
 - [ ] 1.3 Database layer
 - [ ] 1.4 Web storage worker
 - [ ] 1.5 App shell, onboarding and lock
@@ -652,6 +652,8 @@ It must contain:
 - 2026-10-07 — Until MSW arrives with the Phase 3 provider mocks, the web-unit setup stubs `fetch` to reject, so any unmocked network call fails the test.
 - 2026-10-07 — Repository interfaces add a `SnapshotRepository` (exportSnapshot/replaceAll/mergeAll) for backup restore, `exportAll({ includeDeleted })` for tombstones, and category helpers (`reassignTransactions`, `reorder`, `countTransactions`, `seedDefaults`). Totals are `bigint` so sums never lose precision.
 - 2026-10-07 — Zod 4 `.partial()` keeps `.default()`: `transactionPatchSchema` re-declares `note` without a default so a patch never wipes the note (caught by a unit test).
+- 2026-10-07 — The production-KDF timing test enforces ≤ 2 s everywhere but the ≥ 200 ms floor only when `CI` is set: this dev machine derives in ~170 ms, below the floor that TEST_PLAN §2.5 defines for CI hardware.
+- 2026-10-07 — Vault AAD split: the DEK is wrapped with AAD = magic|version|kdf|salt (stable across saves), the data with AAD = every header byte incl. generation and wrapped DEK. `changePassphrase` writes both slots so the old passphrase cannot open the older slot.
 
 ### Open questions
 - _(agent appends questions for the human here)_

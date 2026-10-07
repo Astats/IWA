@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@budget/core": "workspace:*"
+    "@budget/core": "workspace:*",
+    "hash-wasm": "4.12.0"
   }
 }
