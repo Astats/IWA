@@ -125,6 +125,37 @@
       "AMOUNT_TOO_LARGE": "This amount is too large.",
       "CATEGORY_REQUIRED": "Choose a category.",
       "DATE": "Enter a valid date."
+    },
+    "noNote": "(no note)",
+    "noMatches": "No transactions match these filters.",
+    "results": "{{from}}–{{to}} of {{total}}",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageSize": "Rows per page",
+    "perPage": "{{count}} per page",
+    "sortBy": "Sort by",
+    "sortDirection": "Sort direction",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sortKeys": {
+      "date": "Date",
+      "amount": "Amount",
+      "category": "Category",
+      "kind": "Type"
+    },
+    "filters": {
+      "title": "Filters",
+      "search": "Search notes",
+      "searchHint": "Searches stay on this device and are not saved in the address.",
+      "kind": "Type",
+      "period": "Period",
+      "allTime": "All time",
+      "from": "From",
+      "to": "To",
+      "categories": "Categories ({{count}} selected)",
+      "categoriesLegend": "Filter by category",
+      "reset": "Reset filters"
     }
   },
   "categories": {
@@ -220,5 +251,12 @@
     "CATEGORY_IN_USE": "This category is used by transactions. Move them first.",
     "DUPLICATE_CATEGORY_NAME": "A category with this name already exists.",
     "DUPLICATE_ID": "This item already exists."
+  },
+  "periods": {
+    "this-month": "This month",
+    "last-month": "Last month",
+    "this-year": "This year",
+    "last-12-months": "Last 12 months",
+    "custom": "Custom range"
   }
 }

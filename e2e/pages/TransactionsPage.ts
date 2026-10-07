@@ -17,9 +17,17 @@ export class TransactionsPage {
     await expect(this.page.getByRole('heading', { name: 'Transactions', level: 1 })).toBeVisible();
   }
 
-  /** Rows of the transaction list (links to the edit page). */
+  /** Data rows of the transaction table (desktop viewport). */
   rows(): Locator {
-    return this.page.getByRole('list', { name: 'Transactions' }).getByRole('link');
+    return this.page
+      .getByRole('table', { name: 'Transactions' })
+      .getByRole('row')
+      .filter({ has: this.page.getByRole('cell') });
+  }
+
+  /** Notes in display order (each row links to its editor through the note). */
+  async notes(): Promise<string[]> {
+    return this.rows().getByRole('link').allTextContents();
   }
 
   row(text: string | RegExp): Locator {
@@ -44,7 +52,7 @@ export class TransactionsPage {
   }
 
   async open(text: string | RegExp): Promise<void> {
-    await this.row(text).click();
+    await this.row(text).getByRole('link').click();
     await expect(
       this.page.getByRole('heading', { name: 'Edit transaction', level: 1 }),
     ).toBeVisible();

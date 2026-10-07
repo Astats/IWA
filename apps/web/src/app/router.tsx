@@ -64,9 +64,12 @@ export function RequireStatus({
   if (current === status) return children;
   if (current === 'checking' || current === 'error') return null;
   const target = HOME_FOR_STATUS[current];
-  // Remember where the user wanted to go (path only; never data) so unlock can return there.
+  // Remember where the user wanted to go so unlock can return there. Query strings only hold
+  // non-sensitive list filters (never search terms, notes or amounts; SEC-W04).
   const state =
-    current === 'locked' && status === 'unlocked' ? { from: location.pathname } : undefined;
+    current === 'locked' && status === 'unlocked'
+      ? { from: location.pathname + location.search }
+      : undefined;
   return <Navigate to={target} replace state={state} />;
 }
 

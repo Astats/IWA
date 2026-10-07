@@ -1,5 +1,5 @@
 import { PRODUCTION_KDF_PARAMS } from '@budget/core';
-import { testKdfParams } from '@budget/core/testing';
+import { seedLedger, testKdfParams } from '@budget/core/testing';
 import type { Remote } from 'comlink';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -239,5 +239,29 @@ describe('production KDF parameters (one test per runtime, TEST_PLAN §2.5)', ()
     const ms = performance.now() - start;
 
     expect(ms).toBeLessThanOrEqual(2000);
+  });
+});
+
+describe('performance (@perf, BUILD_PLAN 1.8)', () => {
+  it('first page of 10,000 transactions and a sort change are fast', async () => {
+    const { api } = await newWorker({ persistDebounceMs: 60_000 });
+    await api.createVault(PASS);
+    const repos = createWorkerRepositories(api);
+    await seedLedger(repos, { count: 10_000, seed: 42, currencies: ['EUR', 'USD'] });
+
+    const t0 = performance.now();
+    const first = await repos.transactions.list({ sortBy: 'date', sortDir: 'desc', limit: 50 });
+    const firstPageMs = performance.now() - t0;
+    const t1 = performance.now();
+    await repos.transactions.list({ sortBy: 'amount', sortDir: 'asc', limit: 50, search: 'lorem' });
+    const sortChangeMs = performance.now() - t1;
+    console.log(
+      `[perf] 10k rows: first page ${firstPageMs.toFixed(1)} ms, sort+search ${sortChangeMs.toFixed(1)} ms`,
+    );
+
+    expect(first.total).toBe(10_000);
+    expect(first.items).toHaveLength(50);
+    expect(firstPageMs).toBeLessThan(300);
+    expect(sortChangeMs).toBeLessThan(200);
   });
 });

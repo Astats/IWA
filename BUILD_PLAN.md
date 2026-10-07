@@ -607,7 +607,7 @@ It must contain:
 - [x] 1.5 App shell, onboarding and lock — 2026-10-07 — routes + guards, onboarding (policy, acknowledgement), unlock with progressive delay, auto-lock, settings, theme, i18n; e2e J1/J7/J8/J9/J14 + axe (light/dark) green; no CSP violations.
 - [x] 1.6 Categories management — 2026-10-07 — grouped list, create/edit (name, kind, color, icon), move up/down reorder, delete with reassign; component tests + e2e J6 (blocked delete → reassign completed with 1.7).
 - [x] 1.7 Transactions CRUD — 2026-10-07 — RHF + Zod form with locale-aware amounts (no floats), currency/date defaults, kind-filtered categories, soft delete + Undo toast; e2e J2/J3/J4, SEC-W01 (note + category name).
-- [ ] 1.8 Transaction list: sorting and filtering
+- [x] 1.8 Transaction list: sorting and filtering — 2026-10-07 — TanStack Table v9 (manual server-side sorting), filters (kind, categories, presets/custom range, 300 ms debounced note search kept out of the URL), pagination, cards on small screens; e2e J5 + SEC-W04. Perf (browser mode, real worker, 10,000 rows): first page 4.7 ms, sort+search 8.0 ms; UI-level @perf e2e with a 10k CSV import follows in 2.2.
 - [ ] 1.9 Dashboard
 - [ ] 1.10 PWA and offline
 - [ ] 🏁 M1 tagged `v0.1.0`
@@ -663,6 +663,7 @@ It must contain:
 - 2026-10-07 — E2E runs with 2 workers: with more parallel headless Chromium instances, localhost requests stall on this Windows machine (reproduced with plain fetch() from a static page, no app code). The guard observes requests instead of intercepting them (`route` interception added more flakiness). If the storage worker fails to load, vault calls now fail fast and the app shows a generic error instead of loading forever.
 - 2026-10-07 — Coverage runs all Vitest projects including browser mode (Vitest collects no coverage when `--project` filters are used). `db.worker.ts` is excluded from coverage because v8 browser coverage does not instrument worker realms; its behaviour is covered by `db.worker.browser.test.ts`.
 - 2026-10-07 — Field error messages always reserve their line: on blur validation an appearing message shifted the Save button under the pointer and swallowed the click (found by e2e; invisible in jsdom). The transaction editor does not cache single rows (`gcTime: 0`) so a background refetch never remounts the form mid-interaction.
+- 2026-10-07 — List filter state lives in React state mirrored to the URL (the router's setSearchParams is async and its updater sees the render-time params), so quick successive filter changes never overwrite each other; the URL is adopted on load/back-forward. The unlock guard keeps the query string so filters survive lock and reload.
 
 ### Open questions
 - Step 1.4 DoD item 4 (OPFS bytes contain no known note string) is verified in a real Chromium by the browser-mode test; the Playwright version is added in Step 1.6 (first UI field with free text), after which 1.4 is ticked.
