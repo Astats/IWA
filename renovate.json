@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":pinAllExceptPeerDependencies"
+  ],
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] },
+  "schedule": ["before 6am on monday"],
+  "packageRules": [
+    {
+      "description": "typescript-eslint supports TypeScript <6.1; ESLint plugins (jsx-a11y) support ESLint <=9",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    },
+    {
+      "matchPackageNames": ["eslint", "@eslint/js"],
+      "allowedVersions": "<10.0.0"
+    },
+    {
+      "description": "Group dev tooling updates",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "dev tooling (minor/patch)"
+    }
+  ],
+  "vulnerabilityAlerts": { "enabled": true, "labels": ["security"] }
+}
