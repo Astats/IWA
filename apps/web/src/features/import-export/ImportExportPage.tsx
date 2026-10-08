@@ -9,6 +9,7 @@ import { useRepositories, useServices } from '@/di';
 import { useErrorMessage } from '@/hooks/useRepoMutation';
 
 import { downloadTransactionsCsv } from './csv-export';
+import { CsvImport } from './CsvImport';
 
 export function ImportExportPage() {
   const { t } = useTranslation();
@@ -62,6 +63,7 @@ export function ImportExportPage() {
             )}
           </CardContent>
         </Card>
+        <CsvImport />
       </div>
     </>
   );

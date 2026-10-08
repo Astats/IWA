@@ -1,4 +1,5 @@
 import type { Repositories } from '@budget/core';
+import type { CsvParseOutcome } from '@budget/core/csv';
 
 import type { VaultResult, VaultStatus } from '@/storage/worker-api';
 
@@ -27,6 +28,8 @@ export interface VaultService {
 
 export interface AppServices {
   vault: VaultService;
+  /** Parses and validates a CSV file off the main thread (BUILD_PLAN 2.2). */
+  parseCsv: (file: File) => Promise<CsvParseOutcome>;
   /** Wall clock (injectable for tests). */
   now: () => Date;
 }

@@ -1,4 +1,5 @@
 import type { AppServices, VaultResult, VaultService } from '@/di';
+import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
 
 /** Production services: the encrypted storage worker (AD5). */
@@ -23,5 +24,5 @@ export function createBrowserServices(): AppServices {
       return navigator.storage.persist();
     },
   };
-  return { vault, now: () => new Date() };
+  return { vault, parseCsv: parseCsvInWorker, now: () => new Date() };
 }

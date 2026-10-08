@@ -1,0 +1,4 @@
+date;kind;amount;currency;category;note;id
+2026-03-01;income;3500,00;EUR;Salary;Alga;
+2026-03-02;expense;12,50;EUR;Food;"Kafija; ar pienu";
+2026-03-03;expense;1200;EUR;Housing;Īre;

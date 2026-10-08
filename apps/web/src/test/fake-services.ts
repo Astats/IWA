@@ -1,4 +1,5 @@
 import type { Repositories } from '@budget/core';
+import { parseAndValidateCsv } from '@budget/core/csv';
 import { createInMemoryRepositories } from '@budget/core/testing';
 import { vi } from 'vitest';
 
@@ -88,5 +89,10 @@ export function createFakeServices(
   options: FakeVaultOptions & { now?: Date; route?: string } = {},
 ): AppServices & { vault: FakeVault } {
   const now = options.now ?? new Date('2026-03-15T10:00:00Z');
-  return { vault: createFakeVault(options), now: () => new Date(now) };
+  return {
+    vault: createFakeVault(options),
+    // Same pure parse/validate pipeline the worker runs, without a worker.
+    parseCsv: async (file) => parseAndValidateCsv(await file.text()),
+    now: () => new Date(now),
+  };
 }

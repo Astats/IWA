@@ -1,0 +1,11 @@
+date,kind,amount,currency,category,note,id
+2026-03-01,expense,10.00,EUR,Food,ok 1,
+2026-02-30,expense,10.00,EUR,Food,bad date,
+2026-03-02,transfer,10.00,EUR,Food,bad kind,
+2026-03-03,expense,-5.00,EUR,Food,negative,
+2026-03-04,expense,abc,EUR,Food,not a number,
+2026-03-05,expense,10.00,XYZ,Food,bad currency,
+2026-03-06,expense,10.00,EUR,,no category,
+2026-03-07,expense,10.00,EUR,Food,bad id,not-a-uuid
+not-a-date,expense,0,EUR,Food,three problems,
+2026-03-08,income,20.00,EUR,Salary,ok 2,

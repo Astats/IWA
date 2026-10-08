@@ -167,35 +167,40 @@ export interface ValidImportRow {
   note: string;
 }
 
-const rowSchema = (decimal: ',' | '.') =>
-  z
-    .object({
-      date: isoDateSchema,
-      kind: z.string().trim().toLowerCase().pipe(kindSchema),
-      currency: z.string().trim().toUpperCase().pipe(currencySchema),
-      amount: z.string(),
-      category: categoryNameSchema,
-      note: z
-        .string()
-        .default('')
-        .transform((v) => unescapeCell(v))
-        .pipe(noteSchema),
-      id: z
-        .string()
-        .trim()
-        .transform((v) => (v === '' ? undefined : v.toLowerCase()))
-        .pipe(idSchema.optional())
-        .optional(),
-    })
-    .transform((v, ctx) => {
-      if (!isSupportedCurrency(v.currency)) return z.NEVER;
-      const amount = decimalToMinor(v.amount.trim(), v.currency, decimal);
-      if (!amount.ok) {
-        ctx.addIssue({ code: 'custom', path: ['amount'], message: `AMOUNT_${amount.error}` });
-        return z.NEVER;
-      }
-      return { ...v, amountMinor: amount.amountMinor };
-    });
+const csvCurrencySchema = z.string().trim().toUpperCase().pipe(currencySchema);
+
+const rowSchema = z.object({
+  date: isoDateSchema,
+  kind: z.string().trim().toLowerCase().pipe(kindSchema),
+  currency: csvCurrencySchema,
+  amount: z.string(),
+  category: categoryNameSchema,
+  note: z
+    .string()
+    .default('')
+    .transform((v) => unescapeCell(v))
+    .pipe(noteSchema),
+  id: z
+    .string()
+    .trim()
+    .transform((v) => (v === '' ? undefined : v.toLowerCase()))
+    .pipe(idSchema.optional())
+    .optional(),
+});
+
+/**
+ * Amount check, run independently of the other fields so a row reports every problem. It needs a
+ * valid currency (the currency decides the allowed decimals).
+ */
+function checkAmount(
+  fields: Partial<Record<CsvColumn, string>>,
+  decimal: ',' | '.',
+): { ok: true; amountMinor: number } | { ok: false; code: string } | null {
+  const currency = csvCurrencySchema.safeParse(fields.currency ?? '');
+  if (!currency.success || !isSupportedCurrency(currency.data)) return null;
+  const amount = decimalToMinor((fields.amount ?? '').trim(), currency.data, decimal);
+  return amount.ok ? amount : { ok: false, code: `AMOUNT_${amount.error}` };
+}
 
 const FIELD_CODES: Record<string, string> = {
   date: 'INVALID_DATE',
@@ -215,30 +220,34 @@ export function validateRows(collected: CollectedCsv): {
   errors: ImportRowError[];
 } {
   const decimal = collected.delimiter === ';' ? ',' : '.';
-  const schema = rowSchema(decimal);
   const valid: ValidImportRow[] = [];
   const errors: ImportRowError[] = [...collected.errors];
   for (const { row, fields } of collected.rows) {
-    const result = schema.safeParse({ ...fields, category: unescapeCell(fields.category ?? '') });
+    const result = rowSchema.safeParse({
+      ...fields,
+      category: unescapeCell(fields.category ?? ''),
+    });
+    const amount = checkAmount(fields, decimal);
+    const rowErrors: ImportRowError[] = [];
     if (!result.success) {
       const seen = new Set<string>();
       for (const issue of result.error.issues) {
         const field = String(issue.path[0] ?? 'row');
         if (seen.has(field)) continue;
         seen.add(field);
-        const code =
-          field === 'amount' && issue.message.startsWith('AMOUNT_')
-            ? issue.message
-            : (FIELD_CODES[field] ?? 'INVALID');
-        errors.push({
+        rowErrors.push({
           row,
           field: (CSV_COLUMNS as readonly string[]).includes(field) ? (field as CsvColumn) : 'row',
-          code,
+          code: FIELD_CODES[field] ?? 'INVALID',
         });
       }
+    }
+    if (amount && !amount.ok) rowErrors.push({ row, field: 'amount', code: amount.code });
+    if (!result.success || !amount?.ok) {
+      errors.push(...rowErrors);
       continue;
     }
-    const v = result.data;
+    const v = { ...result.data, amountMinor: amount.amountMinor };
     valid.push({
       row,
       ...(v.id ? { id: v.id } : {}),
@@ -385,6 +394,22 @@ export async function commitImport(
     );
   } catch (err) {
     for (const id of created) await repos.categories.softDelete(id).catch(() => undefined);
+    throw err;
+  }
+}
+
+/** Result of parsing + validating a CSV file (crosses the worker boundary; structured-clonable). */
+export type CsvParseOutcome =
+  | { ok: true; delimiter: ',' | ';'; valid: ValidImportRow[]; errors: ImportRowError[] }
+  | { ok: false; code: CsvFatalCode; detail: string[] };
+
+/** Parses and validates CSV text, turning file-level problems into a typed outcome. */
+export function parseAndValidateCsv(text: string, limits: CsvLimits = CSV_LIMITS): CsvParseOutcome {
+  try {
+    const collected = parseCsvText(text, limits);
+    return { ok: true, delimiter: collected.delimiter, ...validateRows(collected) };
+  } catch (err) {
+    if (err instanceof CsvFatalError) return { ok: false, code: err.code, detail: err.detail };
     throw err;
   }
 }

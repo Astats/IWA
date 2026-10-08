@@ -1,0 +1,4 @@
+date,kind,amount,currency,category,note,id
+2026-03-01,expense,5.00,EUR,Pārtika,ā č ē ģ ī ķ ļ ņ š ū ž,
+2026-03-02,expense,6.00,EUR,食品,中文备注,
+2026-03-03,expense,7.00,EUR,Food,emoji 😀🍕,

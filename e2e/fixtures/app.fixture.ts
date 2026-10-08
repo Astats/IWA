@@ -1,4 +1,5 @@
 import { AppShell } from '../pages/AppShell';
+import { generateCsv, ImportExportPage } from '../pages/ImportExportPage';
 import { OnboardingPage } from '../pages/OnboardingPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { UnlockPage } from '../pages/UnlockPage';
@@ -14,7 +15,14 @@ export interface AppPages {
   settings: SettingsPage;
 }
 
-export const test = guarded.extend<{ app: AppPages; onboardedApp: AppPages }>({
+export const test = guarded.extend<{
+  app: AppPages;
+  onboardedApp: AppPages;
+  /** Onboarded app seeded with  transactions imported through the real CSV import. */
+  seededApp: AppPages;
+  seedRows: number;
+}>({
+  seedRows: [1000, { option: true }],
   app: async ({ page }, use) => {
     await use({
       onboarding: new OnboardingPage(page),
@@ -28,6 +36,12 @@ export const test = guarded.extend<{ app: AppPages; onboardedApp: AppPages }>({
     await app.onboarding.goto();
     await app.onboarding.complete({ passphrase: TEST_PASSPHRASE });
     await use(app);
+  },
+  seededApp: async ({ onboardedApp, page, seedRows }, use) => {
+    const importer = new ImportExportPage(page);
+    await importer.goto();
+    await importer.importFile('seed.csv', generateCsv(seedRows));
+    await use(onboardedApp);
   },
 });
 

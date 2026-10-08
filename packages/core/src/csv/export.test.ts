@@ -191,3 +191,16 @@ describe('round-trip: import(export(list)) deep-equals list', () => {
     );
   });
 });
+
+describe('exportTransactionsCsv edge cases', () => {
+  it('writes an empty category for an unknown category id', () => {
+    const [, row] = cells(
+      exportTransactionsCsv(
+        [aTransaction({ categoryId: '0192f0c1-7a3b-7c3d-8e4f-0000000000ff' })],
+        new Map(),
+      ),
+    );
+
+    expect(row?.[4]).toBe('');
+  });
+});

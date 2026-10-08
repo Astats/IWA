@@ -1,0 +1,4 @@
+date,kind,amount,currency,category,note,id
+2026-03-01,expense,1.00,EUR,Food,<img src=x onerror=alert(1)>,
+2026-03-02,expense,1.00,EUR,<script>alert(2)</script>,javascript:alert(3),
+2026-03-03,expense,1.00,EUR,Food,"<svg onload=alert(4)>",

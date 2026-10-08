@@ -231,7 +231,69 @@
     "exportTitle": "Export to CSV",
     "exportIntro": "Download all transactions as a CSV file that opens in any spreadsheet app. The file is not encrypted — store it safely.",
     "exportAll": "Export all transactions",
-    "exported": "Exported {{count}} transaction(s)."
+    "exported": "Exported {{count}} transaction(s).",
+    "importTitle": "Import from CSV",
+    "importIntro": "Columns: date, kind, amount, currency, category, note, id (comma or semicolon separated, UTF-8). Nothing is imported until you confirm.",
+    "file": "CSV file",
+    "preview": "Preview",
+    "reading": "Reading file…",
+    "previewTitle": "Import preview",
+    "options": "Options",
+    "skipDuplicates": "Skip duplicates (same id, or same date, type, amount, currency and note)",
+    "createCategories": "Create missing categories: {{names}}",
+    "errorsTitle": "Rows with errors ({{count}})",
+    "errorLine": "Row {{row}}, {{field}}: {{message}}",
+    "downloadErrors": "Download errors as CSV",
+    "previewTable": "First {{count}} valid rows",
+    "commit": "Import {{count}} transaction(s)",
+    "importing": "Importing…",
+    "imported": "Imported {{count}} transaction(s).",
+    "commitFailed": "The import failed. Nothing was imported.",
+    "counts": {
+      "valid": "Valid rows",
+      "invalid": "Rows with errors",
+      "duplicates": "Duplicates",
+      "newCategories": "New categories"
+    },
+    "status": {
+      "ok": "Ready",
+      "duplicate": "Duplicate",
+      "missingCategory": "Unknown category"
+    },
+    "columns": {
+      "row": "Row",
+      "date": "date",
+      "kind": "kind",
+      "amount": "amount",
+      "currency": "currency",
+      "category": "category",
+      "note": "note",
+      "id": "id",
+      "status": "Status"
+    },
+    "fatal": {
+      "EMPTY": "The file is empty.",
+      "NO_ROWS": "The file has a header but no rows.",
+      "TOO_LARGE": "The file is larger than 5 MB.",
+      "TOO_MANY_ROWS": "The file has more than 50,000 rows.",
+      "MISSING_COLUMNS": "Required columns are missing: {{detail}}."
+    },
+    "rowErrors": {
+      "INVALID": "Invalid value.",
+      "INVALID_DATE": "Use a date in YYYY-MM-DD format.",
+      "INVALID_KIND": "Use income or expense.",
+      "INVALID_CURRENCY": "Use a 3-letter currency code such as EUR.",
+      "INVALID_CATEGORY": "Enter a category name of 1 to 50 characters.",
+      "NOTE_TOO_LONG": "The note is longer than 500 characters.",
+      "INVALID_ID": "The id is not a valid UUID.",
+      "FIELD_TOO_LONG": "The field is longer than 500 characters.",
+      "AMOUNT_EMPTY": "The amount is missing.",
+      "AMOUNT_INVALID": "The amount is not a number.",
+      "AMOUNT_NEGATIVE": "Amounts must be positive; use the kind column for expenses.",
+      "AMOUNT_ZERO": "The amount must be greater than zero.",
+      "AMOUNT_TOO_MANY_DECIMALS": "Too many decimals for this currency.",
+      "AMOUNT_TOO_LARGE": "The amount is too large."
+    }
   },
   "backup": {
     "title": "Backup"

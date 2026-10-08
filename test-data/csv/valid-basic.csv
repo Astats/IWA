@@ -1,0 +1,6 @@
+date,kind,amount,currency,category,note,id
+2026-03-01,income,3500.00,EUR,Salary,March salary,
+2026-03-02,expense,1200.00,EUR,Housing,Rent,
+2026-03-05,expense,45.50,EUR,Food,Groceries,
+2026-03-06,expense,1500,JPY,Food,Sushi in yen,
+2026-03-07,expense,2.125,KWD,Transport,Taxi,

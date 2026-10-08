@@ -44,6 +44,10 @@ export default defineConfig({
         // Runs inside a Web Worker, which browser-mode v8 coverage does not instrument; its behaviour
         // is covered by src/storage/db.worker.browser.test.ts.
         'apps/web/src/storage/db.worker.ts',
+        // CSV import worker + its comlink wrapper: worker realm; covered by e2e/specs/csv-import.spec.ts
+        // (the same parse/validate pipeline is unit-tested in packages/core/src/csv).
+        'apps/web/src/features/import-export/csv.worker.ts',
+        'apps/web/src/features/import-export/csv-parser.ts',
         'apps/web/src/components/ui/**',
       ],
       // Floors per package (TEST_PLAN §3.2). Coverage is a floor, not a goal.
