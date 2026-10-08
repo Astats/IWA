@@ -30,6 +30,7 @@ function cspMeta(): Plugin {
 /** OAuth popup redirect URIs (registered with the providers) → their bridge pages. */
 const AUTH_CALLBACKS: Record<string, string> = {
   '/auth/callback/microsoft': '/auth/callback/microsoft/index.html',
+  '/auth/callback/dropbox': '/auth/callback/dropbox/index.html',
 };
 
 /**
@@ -112,6 +113,7 @@ export default defineConfig({
         index: path.resolve(import.meta.dirname, 'index.html'),
         // OAuth popup redirect bridge (BUILD_PLAN 3.2).
         microsoftCallback: path.resolve(import.meta.dirname, 'auth/callback/microsoft/index.html'),
+        dropboxCallback: path.resolve(import.meta.dirname, 'auth/callback/dropbox/index.html'),
       },
     },
   },

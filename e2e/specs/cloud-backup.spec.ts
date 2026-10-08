@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import {
+  E2E_DROPBOX_APP_KEY,
   E2E_GOOGLE_CLIENT_ID,
   E2E_MS_CLIENT_ID,
   expect,
@@ -8,6 +9,7 @@ import {
   TEST_PASSPHRASE,
   type AppPages,
 } from '../fixtures/app.fixture';
+import { DROPBOX_ACCESS_TOKEN } from '../fixtures/providers/dropbox';
 import { GOOGLE_ACCESS_TOKEN } from '../fixtures/providers/google';
 import { MS_ACCESS_TOKEN } from '../fixtures/providers/microsoft';
 import { BackupPage } from '../pages/BackupPage';
@@ -16,6 +18,7 @@ import { TransactionsPage } from '../pages/TransactionsPage';
 const FAKE = 'Test storage';
 const ONEDRIVE = 'Microsoft OneDrive';
 const GDRIVE = 'Google Drive';
+const DROPBOX = 'Dropbox';
 
 /** Web Storage and IndexedDB must never hold provider tokens (BUILD_PLAN §6.1). */
 async function expectNoTokensStored(page: Page, token: string) {
@@ -52,7 +55,9 @@ async function cloudJourney(page: Page, app: AppPages, provider: string) {
   await expect(backup.remoteItems(provider)).toHaveCount(1);
   await expect(backup.provider(provider).getByText(/^Last backup: /)).toBeVisible();
 
-  // Change the data, back up again (two backups now), then restore the older one.
+  // Change the data, back up again (two backups now), then restore the older one. Backup names
+  // have one-second resolution, so make sure the second backup gets a different name.
+  await page.waitForTimeout(1_100);
   await tx.goto();
   await tx.addExpense({ amount: '99', category: 'Food', date: '2026-03-03', note: 'Dinner' });
   await backup.goto();
@@ -240,6 +245,86 @@ test.describe('J13 cloud backup (Google Drive, mocked)', () => {
     const section = backup.provider(GDRIVE);
     await expect(section.getByText('No backups yet.')).toBeVisible();
     google.revoke();
+
+    await section.getByLabel('Current passphrase').fill(TEST_PASSPHRASE);
+    await section.getByRole('button', { name: 'Back up now' }).click();
+
+    await expect(section.getByRole('alert')).toHaveText(
+      'Your sign-in has expired or was revoked. Connect again.',
+    );
+    await expect(section.getByText('Not connected')).toBeVisible();
+  });
+});
+
+test.describe('J13 cloud backup (Dropbox, mocked)', () => {
+  test('full journey through the PKCE popup flow', async ({
+    onboardedApp: app,
+    page,
+    cloud: { dropbox },
+  }) => {
+    test.setTimeout(90_000);
+    await cloudJourney(page, app, DROPBOX);
+
+    const [stored] = [...dropbox.files.values()];
+    expect(stored?.bytes.subarray(0, 4).toString()).toBe('BGTB');
+    expect(stored?.bytes.includes(Buffer.from('Lunch'))).toBe(false);
+  });
+
+  test('@security SEC-W13 PKCE S256, state, minimal scopes; token in memory only', async ({
+    onboardedApp: _app,
+    page,
+    cloud: { dropbox },
+  }) => {
+    const backup = new BackupPage(page);
+    await backup.goto();
+    await backup.connect(DROPBOX);
+    await expect(backup.provider(DROPBOX).getByText('No backups yet.')).toBeVisible();
+
+    const [authorize] = dropbox.authorizeUrls;
+    const q = authorize?.searchParams;
+    expect(q?.get('client_id')).toBe(E2E_DROPBOX_APP_KEY);
+    expect(q?.get('response_type')).toBe('code');
+    expect(q?.get('code_challenge_method')).toBe('S256');
+    expect(q?.get('token_access_type')).toBe('online');
+    expect(q?.get('scope')).toBe('files.metadata.read files.content.read files.content.write');
+    expect(q?.get('redirect_uri')).toBe(`${new URL(page.url()).origin}/auth/callback/dropbox`);
+    // The fake token endpoint only answers when the verifier matches the challenge.
+    expect(dropbox.tokenRequests[0]?.has('client_secret')).toBe(false);
+    await expectNoTokensStored(page, DROPBOX_ACCESS_TOKEN);
+    expect(dropbox.apiRequests.every((r) => r.authorized)).toBe(true);
+  });
+
+  test('@security SEC-W13 a redirect with a forged state is rejected', async ({
+    onboardedApp: _app,
+    page,
+    cloud: { dropbox },
+  }) => {
+    dropbox.forgeState = 'forged-state';
+    const backup = new BackupPage(page);
+    await backup.goto();
+
+    await page.getByRole('button', { name: 'Connect ' + DROPBOX }).click();
+
+    await expect(backup.provider(DROPBOX).getByRole('alert')).toHaveText(
+      'The provider could not complete the request. Try again later.',
+    );
+    await expect(backup.provider(DROPBOX).getByText('Not connected')).toBeVisible();
+    expect(dropbox.tokenRequests).toEqual([]);
+  });
+
+  test('access revoked at Dropbox → reconnect prompt', async ({
+    onboardedApp: _app,
+    page,
+    guard,
+    cloud: { dropbox },
+  }) => {
+    guard.expectConsoleError(/status of 401/);
+    const backup = new BackupPage(page);
+    await backup.goto();
+    await backup.connect(DROPBOX);
+    const section = backup.provider(DROPBOX);
+    await expect(section.getByText('No backups yet.')).toBeVisible();
+    dropbox.revoke();
 
     await section.getByLabel('Current passphrase').fill(TEST_PASSPHRASE);
     await section.getByRole('button', { name: 'Back up now' }).click();

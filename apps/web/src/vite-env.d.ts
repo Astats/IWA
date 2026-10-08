@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_MS_CLIENT_ID?: string;
   /** Google OAuth client ID (type "Web application") for Google Drive backups. Public. */
   readonly VITE_GOOGLE_CLIENT_ID?: string;
+  /** Dropbox app key (App folder access, PKCE; no secret) for Dropbox backups. Public. */
+  readonly VITE_DROPBOX_APP_KEY?: string;
 }
 
 /** App version from package.json, injected at build time. */

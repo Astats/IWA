@@ -55,7 +55,8 @@ The production build carries this policy as a `<meta http-equiv="Content-Securit
 default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client;
 style-src 'self' https://accounts.google.com/gsi/style; img-src 'self' data:; font-src 'self';
 worker-src 'self'; connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com
-https://*.1drv.com https://*.sharepoint.com https://accounts.google.com/gsi/ https://www.googleapis.com;
+https://*.1drv.com https://*.sharepoint.com https://accounts.google.com/gsi/ https://www.googleapis.com
+https://api.dropboxapi.com https://content.dropboxapi.com;
 frame-src https://accounts.google.com/gsi/; manifest-src 'self'; object-src 'none'; base-uri 'none';
 form-action 'self'; upgrade-insecure-requests
 ```
@@ -73,6 +74,8 @@ form-action 'self'; upgrade-insecure-requests
 | `https://accounts.google.com/gsi/style`  | style-src              | Google Drive (3.3): stylesheet GIS may load (Google's documented CSP for the library).                                                                                              |
 | `https://accounts.google.com/gsi/`       | connect-src, frame-src | Google Drive (3.3): GIS endpoints and iframes, as documented by Google. The sign-in itself runs in a popup.                                                                         |
 | `https://www.googleapis.com`             | connect-src            | Google Drive (3.3): Drive API v3 on the hidden app data folder, including multipart and resumable uploads.                                                                          |
+| `https://api.dropboxapi.com`             | connect-src            | Dropbox (3.4): OAuth token endpoint (code + PKCE verifier) and the RPC API (list, delete) on the App folder.                                                                        |
+| `https://content.dropboxapi.com`         | connect-src            | Dropbox (3.4): upload and download of backup files in the App folder.                                                                                                               |
 
 Notes:
 
@@ -85,6 +88,7 @@ Notes:
 
 - **OneDrive** uses `@azure/msal-browser`: authorization code flow with PKCE (S256) and `state` in a popup; the delegated scope is `Files.ReadWrite.AppFolder` only (MSAL adds the OpenID scopes `openid profile offline_access`). MSAL's token cache is `memoryStorage`, so access and refresh tokens never reach Web Storage or IndexedDB; MSAL only keeps a transient "interaction in progress" marker in `sessionStorage` during sign-in. The popup returns to `/auth/callback/microsoft`, a separate page that only runs MSAL's redirect bridge (it hands the response to the app over a `BroadcastChannel`); the app is not loaded there.
 - **Google Drive** uses the Google Identity Services token client: Google's popup returns a short-lived access token for the scope `https://www.googleapis.com/auth/drive.appdata` only (checked with `hasGrantedAllScopes`). There is no client secret, no authorization code and therefore no PKCE in this model, and no refresh token: when the token expires (≈1 hour) the user connects again. The token is held in memory only.
+- **Dropbox** uses the authorization code flow with PKCE (S256) for a public client (no app secret), implemented in `apps/web/src/cloud/`: the popup is opened from the click, navigated to Dropbox with a random `state`, and returns to `/auth/callback/dropbox`, a tiny page that posts `state` + `code` on a same-origin `BroadcastChannel`, removes them from the URL and closes. The app rejects any response whose `state` differs (no code exchange happens), validates the message with Zod, and asks only for `files.metadata.read files.content.read files.content.write` with `token_access_type=online` (short-lived access token, no refresh token). The app key's Dropbox app has "App folder" access, so the token cannot reach the rest of the user's Dropbox.
 - Sessions are memory-only: reloading or locking the app (auto-lock included) forgets every provider session. A 401 from a provider forgets the session and asks the user to connect again.
 - Tokens are sent only to the provider's API origin; pre-authenticated upload/download URLs never receive them, and a listing that points to another origin is rejected.
 

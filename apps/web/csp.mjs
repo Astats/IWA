@@ -23,6 +23,9 @@ export const cspDirectives = {
     // Google Drive (Step 3.3): GIS endpoints and the Drive API (incl. uploads).
     'https://accounts.google.com/gsi/',
     'https://www.googleapis.com',
+    // Dropbox (Step 3.4): OAuth token endpoint + RPC API, and the content (upload/download) API.
+    'https://api.dropboxapi.com',
+    'https://content.dropboxapi.com',
   ],
   // GIS may use iframes on its own origin (Google's documented CSP for the library).
   'frame-src': ['https://accounts.google.com/gsi/'],

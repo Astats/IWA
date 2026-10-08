@@ -4,3 +4,5 @@ export * from './http';
 export * from './provider';
 export * from './providers/onedrive';
 export * from './providers/gdrive';
+export * from './oauth';
+export * from './providers/dropbox';

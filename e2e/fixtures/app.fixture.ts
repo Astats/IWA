@@ -4,17 +4,20 @@ import { OnboardingPage } from '../pages/OnboardingPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { UnlockPage } from '../pages/UnlockPage';
 import { expect, test as guarded } from './guard.fixture';
+import { FakeDropbox } from './providers/dropbox';
 import { FakeGoogle } from './providers/google';
 import { FakeMicrosoft } from './providers/microsoft';
 
 /** Client ids the e2e build is made with (apps/web/.env.e2e). */
 export const E2E_MS_CLIENT_ID = '00000000-0000-4000-8000-00000000e2e0';
 export const E2E_GOOGLE_CLIENT_ID = 'e2e-google-client.apps.googleusercontent.com';
+export const E2E_DROPBOX_APP_KEY = 'e2edropboxappkey';
 
 /** Mocked cloud providers (TEST_PLAN §3.3 fakeProviders); no real provider is ever contacted. */
 export interface CloudFakes {
   microsoft: FakeMicrosoft;
   google: FakeGoogle;
+  dropbox: FakeDropbox;
 }
 
 /** Known test passphrase (only ever used against local test builds). */
@@ -37,9 +40,14 @@ export const test = guarded.extend<{
 }>({
   cloud: [
     async ({ context }, use) => {
-      const fakes = { microsoft: new FakeMicrosoft(E2E_MS_CLIENT_ID), google: new FakeGoogle() };
+      const fakes = {
+        microsoft: new FakeMicrosoft(E2E_MS_CLIENT_ID),
+        google: new FakeGoogle(),
+        dropbox: new FakeDropbox(),
+      };
       await fakes.microsoft.install(context);
       await fakes.google.install(context);
+      await fakes.dropbox.install(context);
       await use(fakes);
     },
     { auto: true },

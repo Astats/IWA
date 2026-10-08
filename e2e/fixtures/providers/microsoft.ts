@@ -146,6 +146,10 @@ export class FakeMicrosoft {
     }
     const upload = /^\/me\/drive\/special\/approot:\/(.+):\/content$/.exec(path);
     if (upload && request.method() === 'PUT') {
+      // conflictBehavior=fail: an existing name is a conflict, as on real OneDrive.
+      if ([...this.files.values()].some((f) => f.name === upload[1])) {
+        return this.json(route, { error: { code: 'nameAlreadyExists' } }, 409);
+      }
       const entry: FileEntry = {
         id: `E2E!${this.nextId++}`,
         name: upload[1] ?? '',

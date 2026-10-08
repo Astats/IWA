@@ -1,5 +1,6 @@
 import {
   createProviderRegistry,
+  DropboxProvider,
   GoogleDriveProvider,
   OneDriveProvider,
   type BackupProvider,
@@ -7,6 +8,7 @@ import {
 import { PRODUCTION_KDF_PARAMS } from '@budget/core';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
+import { createDropboxSession } from '@/cloud/dropbox-session';
 import { createGoogleSession } from '@/cloud/google-session';
 import { createMicrosoftSession } from '@/cloud/microsoft-session';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
@@ -29,6 +31,17 @@ function configuredProviders(): BackupProvider[] {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   if (googleClientId) {
     providers.push(new GoogleDriveProvider(createGoogleSession({ clientId: googleClientId })));
+  }
+  const dropboxAppKey = import.meta.env.VITE_DROPBOX_APP_KEY;
+  if (dropboxAppKey) {
+    providers.push(
+      new DropboxProvider(
+        createDropboxSession({
+          appKey: dropboxAppKey,
+          redirectUri: `${window.location.origin}/auth/callback/dropbox`,
+        }),
+      ),
+    );
   }
   return providers;
 }
