@@ -379,6 +379,25 @@
       "disconnectLabel": "Disconnect {{provider}}",
       "restoreLabel": "Restore backup of {{date}}",
       "deleteLabel": "Delete backup of {{date}}"
+    },
+    "reminder": {
+      "never": "You have no backup yet. Back up your data so it is not lost if this device fails.",
+      "overdue": "A backup has been due since {{date}}.",
+      "backUpNow": "Back up now"
+    },
+    "status": {
+      "title": "Backup status",
+      "intro": "Backups never run in the background: the app reminds you, and you back up with your passphrase.",
+      "last": "Last successful backup",
+      "never": "Never",
+      "next": "Next reminder: {{date}}",
+      "frequency": "Remind me to back up",
+      "frequencyHint": "A reminder appears on every screen when a backup is due.",
+      "frequencies": {
+        "manual": "Never (manual backups only)",
+        "daily": "Daily",
+        "weekly": "Weekly"
+      }
     }
   },
   "settings": {

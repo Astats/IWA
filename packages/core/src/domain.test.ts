@@ -207,6 +207,8 @@ describe('settingsSchema', () => {
     theme: 'dark',
     autoLockMinutes: 5,
     backupRetention: 3,
+    backupFrequency: 'daily',
+    lastBackupAt: '2026-03-01T10:00:00.000Z',
     schemaVersion: 1,
   };
 
@@ -214,9 +216,13 @@ describe('settingsSchema', () => {
     expect(settingsSchema.parse(valid)).toEqual(valid);
   });
 
-  it('defaults backupRetention for settings written before it existed', () => {
-    const { backupRetention: _omitted, ...older } = valid;
-    expect(settingsSchema.parse(older).backupRetention).toBe(10);
+  it('defaults backup settings for settings written before they existed', () => {
+    const { backupRetention: _r, backupFrequency: _f, lastBackupAt: _l, ...older } = valid;
+    expect(settingsSchema.parse(older)).toMatchObject({
+      backupRetention: 10,
+      backupFrequency: 'weekly',
+      lastBackupAt: null,
+    });
   });
 
   it.each([
@@ -227,6 +233,8 @@ describe('settingsSchema', () => {
     ['backupRetention', 0],
     ['backupRetention', 101],
     ['backupRetention', 2.5],
+    ['backupFrequency', 'hourly'],
+    ['lastBackupAt', 'yesterday'],
     ['locale', ''],
   ])('rejects %s = %j', (field, value) => {
     expect(settingsSchema.safeParse({ ...valid, [field]: value }).success).toBe(false);

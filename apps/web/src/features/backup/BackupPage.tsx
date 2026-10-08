@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useRepositories, useServices } from '@/di';
+import { useRecordBackup } from '@/hooks/useBackupReminder';
 import { downloadFile } from '@/lib/download';
 
+import { BackupStatus } from './BackupReminder';
 import { CloudBackup } from './CloudBackup';
 import { BACKUP_TYPE, RestoreFlow } from './RestoreFlow';
 
@@ -19,6 +21,7 @@ function DownloadBackup() {
   const { t } = useTranslation();
   const repos = useRepositories();
   const services = useServices();
+  const recordBackup = useRecordBackup();
   const [passphrase, setPassphrase] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -38,6 +41,7 @@ function DownloadBackup() {
         now: services.now,
       });
       downloadFile(backupFileName(services.now()), bytes, BACKUP_TYPE);
+      await recordBackup();
       setPassphrase('');
       setMessage({ ok: true, text: t('backup.downloaded') });
     } catch {
@@ -131,6 +135,7 @@ export function BackupPage() {
     <>
       <PageHeader title={t('backup.title')} />
       <div className="grid gap-4 lg:grid-cols-2">
+        <BackupStatus />
         <CloudBackup />
         <DownloadBackup />
         <RestoreFromFile />

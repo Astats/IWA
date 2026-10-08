@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router';
 
 import { ToastProvider } from '@/components/toast/Toaster';
+import { BackupReminderBanner } from '@/features/backup/BackupReminder';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useServices, useSession } from '@/di';
@@ -127,6 +128,7 @@ export function AppShell() {
             <AlertDescription>{t('app.storageWarning')}</AlertDescription>
           </Alert>
         )}
+        <BackupReminderBanner />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 p-4 outline-none">
           <ToastProvider>
             <Suspense fallback={<p role="status">{t('app.loading')}</p>}>

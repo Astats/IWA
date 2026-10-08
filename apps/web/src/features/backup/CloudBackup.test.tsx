@@ -85,6 +85,8 @@ describe('cloud backup', () => {
       minKdf: testKdfParams,
     });
     expect(payload.transactions.map((t) => t.note)).toEqual(['Secret lunch']);
+    // A successful cloud backup counts as the last backup (BUILD_PLAN 3.5).
+    expect(await services.vault.repos.settings.get('lastBackupAt')).not.toBeNull();
     expect(await within(region).findByText(/^Last backup: /)).toBeInTheDocument();
     const list = within(region).getByRole('list', { name: 'Backups in Test storage' });
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);

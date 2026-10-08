@@ -49,9 +49,13 @@ async function cloudJourney(page: Page, app: AppPages, provider: string) {
   await tx.addExpense({ amount: '12.50', category: 'Food', date: '2026-03-02', note: 'Lunch' });
 
   await backup.goto();
+  // Data but no backup yet: the reminder banner shows (BUILD_PLAN 3.5) until a backup succeeds.
+  const reminder = page.getByText('You have no backup yet.', { exact: false });
+  await expect(reminder).toBeVisible();
   await backup.connect(provider);
   await expect(backup.provider(provider).getByText('No backups yet.')).toBeVisible();
   await backup.backUpNow(provider, TEST_PASSPHRASE);
+  await expect(reminder).toBeHidden();
   await expect(backup.remoteItems(provider)).toHaveCount(1);
   await expect(backup.provider(provider).getByText(/^Last backup: /)).toBeVisible();
 

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useRepositories, useServices } from '@/di';
+import { useRecordBackup } from '@/hooks/useBackupReminder';
 import { useFormatters } from '@/hooks/useFormatters';
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings';
 
@@ -120,6 +121,7 @@ function BackUpNow({
   const services = useServices();
   const settings = useSettings();
   const queryClient = useQueryClient();
+  const recordBackup = useRecordBackup();
   const [passphrase, setPassphrase] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Message>(null);
@@ -141,6 +143,7 @@ function BackUpNow({
       });
       const keep = settings.data?.backupRetention ?? DEFAULT_BACKUP_RETENTION;
       const result = await uploadBackup(provider, backupFileName(services.now()), bytes, keep);
+      await recordBackup();
       setPassphrase('');
       const removed = result.retention?.deleted.length ?? 0;
       setMessage({
