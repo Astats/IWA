@@ -613,7 +613,7 @@ It must contain:
 - [x] 🏁 M1 tagged `v0.1.0` — 2026-10-08 — local tag (no remote yet).
 
 ### Phase 2 — Data portability
-- [ ] 2.1 CSV export
+- [x] 2.1 CSV export — 2026-10-08 — pure exporter in @budget/core/csv (BOM, CRLF, RFC 4180 quoting, formula escaping incl. after whitespace); export all (Import/Export page) or the current filtered view (Transactions page) via a revoked Blob URL; tests: every dangerous prefix, Unicode, quoting, property-based export→import round trip (40 random ledgers), e2e SEC-W10.
 - [ ] 2.2 CSV import
 - [ ] 2.3 Encrypted local backup and restore
 - [ ] 🏁 M2 tagged `v0.2.0`
@@ -666,6 +666,7 @@ It must contain:
 - 2026-10-07 — List filter state lives in React state mirrored to the URL (the router's setSearchParams is async and its updater sees the render-time params), so quick successive filter changes never overwrite each other; the URL is adopted on load/back-forward. The unlock guard keeps the query string so filters survive lock and reload.
 - 2026-10-07 — Chart colors: dataviz reference slots 1–2 (#2a78d6/#eb6834 light, #3987e5/#d95926 dark) pass the palette validator (CVD ΔE ≥ 24.7, contrast ≥ 3:1) on the card surfaces. Category colors are user data, so the category chart uses one hue and shows each category's color only as a swatch next to its name.
 - 2026-10-08 — Lighthouse ≥ 12 has no PWA category; installability is asserted in e2e via CDP `Page.getInstallabilityErrors`. `lighthouserc.json` (perf/a11y/best-practices budgets) runs via `pnpm lhci` in the nightly pipeline. J16 simulates a new deployment by registering `/sw.js?next-version` because Playwright cannot route the browser's own service-worker update fetch.
+- 2026-10-08 — CSV escaping is bijective: export prefixes `'` to cells starting (after whitespace) with `= + - @ TAB CR` *and* to cells already starting with `'`; import removes exactly one leading `'`, so export → import reproduces every note and category name exactly.
 
 ### Open questions
 - Step 1.4 DoD item 4 (OPFS bytes contain no known note string) is verified in a real Chromium by the browser-mode test; the Playwright version is added in Step 1.6 (first UI field with free text), after which 1.4 is ticked.

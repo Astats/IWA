@@ -1,5 +1,5 @@
 import { SORT_KEYS, toLocalIsoDate, type SortKey } from '@budget/core';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
@@ -7,11 +7,13 @@ import { Link, useSearchParams } from 'react-router';
 import { NativeSelect } from '@/components/form/Field';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
-import { useServices } from '@/di';
+import { useRepositories, useServices } from '@/di';
 import { useCategories, useCategoryMap } from '@/hooks/useCategories';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useTransactionList } from '@/hooks/useTransactions';
+
+import { collectTransactions, downloadTransactionsCsv } from '../import-export/csv-export';
 
 import { FilterBar } from './FilterBar';
 import {
@@ -28,6 +30,8 @@ import { TransactionTable } from './TransactionTable';
 export function TransactionsPage() {
   const { t } = useTranslation();
   const services = useServices();
+  const repos = useRepositories();
+  const [exporting, setExporting] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   // List state lives in React state (updated synchronously by each event) and is mirrored to the
   // URL. Router navigation is async, so reading params back from the URL would lag behind quick
@@ -67,11 +71,30 @@ export function TransactionsPage() {
       <PageHeader
         title={t('transactions.title')}
         actions={
-          <Button asChild>
-            <Link to="/transactions/new">
-              <Plus aria-hidden /> {t('transactions.new')}
-            </Link>
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={exporting || !data?.total}
+              onClick={() => {
+                setExporting(true);
+                const { limit: _limit, offset: _offset, ...filters } = query;
+                // The current filtered view, every page (not just the visible one).
+                void collectTransactions(repos, filters)
+                  .then((rows) => downloadTransactionsCsv(repos, rows, services.now()))
+                  .finally(() => {
+                    setExporting(false);
+                  });
+              }}
+            >
+              <Download aria-hidden /> {t('transactions.exportView')}
+            </Button>
+            <Button asChild>
+              <Link to="/transactions/new">
+                <Plus aria-hidden /> {t('transactions.new')}
+              </Link>
+            </Button>
+          </>
         }
       />
       <FilterBar

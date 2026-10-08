@@ -8,6 +8,12 @@ import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
 import { UnlockPage } from '@/features/unlock/UnlockPage';
 
+const ImportExportPage = lazy(() =>
+  import('@/features/import-export/ImportExportPage').then((m) => ({
+    default: m.ImportExportPage,
+  })),
+);
+
 const TransactionsPage = lazy(() =>
   import('@/features/transactions/TransactionsPage').then((m) => ({ default: m.TransactionsPage })),
 );
@@ -146,7 +152,7 @@ export const routes: RouteObject[] = [
           { path: 'transactions/new', element: <TransactionEditorPage /> },
           { path: 'transactions/:id', element: <TransactionEditorPage /> },
           { path: 'categories', element: <CategoriesPage /> },
-          { path: 'import-export', element: <PlaceholderPage titleKey="importExport.title" /> },
+          { path: 'import-export', element: <ImportExportPage /> },
           { path: 'backup', element: <PlaceholderPage titleKey="backup.title" /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: '*', element: <NotFound /> },

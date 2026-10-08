@@ -172,7 +172,8 @@
       "categories": "Categories ({{count}} selected)",
       "categoriesLegend": "Filter by category",
       "reset": "Reset filters"
-    }
+    },
+    "exportView": "Export this view"
   },
   "categories": {
     "title": "Categories",
@@ -226,7 +227,11 @@
     }
   },
   "importExport": {
-    "title": "Import / Export"
+    "title": "Import / Export",
+    "exportTitle": "Export to CSV",
+    "exportIntro": "Download all transactions as a CSV file that opens in any spreadsheet app. The file is not encrypted — store it safely.",
+    "exportAll": "Export all transactions",
+    "exported": "Exported {{count}} transaction(s)."
   },
   "backup": {
     "title": "Backup"

@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/testing/index.ts"
+    "./testing": "./src/testing/index.ts",
+    "./csv": "./src/csv/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -13,12 +14,14 @@
   },
   "dependencies": {
     "dinero.js": "2.0.2",
+    "papaparse": "5.7.0",
     "uuid": "14.0.2",
     "zod": "4.6.5"
   },
   "devDependencies": {
     "@faker-js/faker": "10.6.0",
     "@fast-check/vitest": "0.5.0",
+    "@types/papaparse": "5.5.2",
     "fast-check": "4.10.2"
   }
 }
