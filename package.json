@@ -22,12 +22,15 @@
     "test:e2e:all": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "playwright test --project=chromium --grep @a11y",
-    "test:security": "playwright test --project=chromium --grep @security"
+    "test:security": "playwright test --project=chromium --grep @security",
+    "size": "size-limit",
+    "lhci": "pnpm dlx @lhci/cli@0.15.1 autorun"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@eslint/js": "9.39.5",
     "@playwright/test": "1.63.0",
+    "@size-limit/file": "14.1.0",
     "@types/node": "^24.19.1",
     "@vitest/coverage-v8": "5.0.3",
     "eslint": "9.39.5",
@@ -36,6 +39,7 @@
     "eslint-plugin-security": "4.2.0",
     "globals": "17.13.0",
     "prettier": "3.9.9",
+    "size-limit": "14.1.0",
     "turbo": "2.11.7",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.1",

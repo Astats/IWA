@@ -43,6 +43,8 @@ jobs:
         run: pnpm test:coverage
       - name: Build (includes build-integrity checks)
         run: pnpm build
+      - name: Bundle size budget
+        run: pnpm size
       - name: E2E (@smoke, @security, @a11y on Chromium)
         run: pnpm test:e2e
       - name: Upload reports

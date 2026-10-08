@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Initial JS (entry chunk, gzip; excludes lazy pages, workers and the sqlite WASM)",
+    "path": "apps/web/dist/assets/index-*.js",
+    "limit": "250 KB",
+    "gzip": true
+  }
+]

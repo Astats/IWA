@@ -1,17 +1,34 @@
-import { useEffect, type ReactNode } from 'react';
+import { lazy, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, Outlet, useLocation, type RouteObject } from 'react-router';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { useSession, type SessionStatus } from '@/di';
-import { CategoriesPage } from '@/features/categories/CategoriesPage';
-import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
-import { SettingsPage } from '@/features/settings/SettingsPage';
-import { TransactionEditorPage } from '@/features/transactions/TransactionEditorPage';
-import { TransactionsPage } from '@/features/transactions/TransactionsPage';
 import { UnlockPage } from '@/features/unlock/UnlockPage';
+
+const TransactionsPage = lazy(() =>
+  import('@/features/transactions/TransactionsPage').then((m) => ({ default: m.TransactionsPage })),
+);
+
+const TransactionEditorPage = lazy(() =>
+  import('@/features/transactions/TransactionEditorPage').then((m) => ({
+    default: m.TransactionEditorPage,
+  })),
+);
+
+const SettingsPage = lazy(() =>
+  import('@/features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
+
+const CategoriesPage = lazy(() =>
+  import('@/features/categories/CategoriesPage').then((m) => ({ default: m.CategoriesPage })),
+);
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
   return (
@@ -122,6 +139,7 @@ export const routes: RouteObject[] = [
             <AppShell />
           </RequireStatus>
         ),
+        // Pages are code-split; the shell stays visible while one loads.
         children: [
           { index: true, element: <DashboardPage /> },
           { path: 'transactions', element: <TransactionsPage /> },

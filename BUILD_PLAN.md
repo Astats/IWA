@@ -609,8 +609,8 @@ It must contain:
 - [x] 1.7 Transactions CRUD — 2026-10-07 — RHF + Zod form with locale-aware amounts (no floats), currency/date defaults, kind-filtered categories, soft delete + Undo toast; e2e J2/J3/J4, SEC-W01 (note + category name).
 - [x] 1.8 Transaction list: sorting and filtering — 2026-10-07 — TanStack Table v9 (manual server-side sorting), filters (kind, categories, presets/custom range, 300 ms debounced note search kept out of the URL), pagination, cards on small screens; e2e J5 + SEC-W04. Perf (browser mode, real worker, 10,000 rows): first page 4.7 ms, sort+search 8.0 ms; UI-level @perf e2e with a 10k CSV import follows in 2.2.
 - [x] 1.9 Dashboard — 2026-10-07 — period presets, per-currency income/expense/balance tiles, expenses by category (horizontal bars + table), 12-month income vs expense (validated blue/orange, legend, tooltip, table), recent list; totals unit-tested against independent BigInt sums; e2e J1/J2/J3 dashboard parts + axe light/dark. Recharts is lazy-loaded (107 KB gz chunk).
-- [ ] 1.10 PWA and offline
-- [ ] 🏁 M1 tagged `v0.1.0`
+- [x] 1.10 PWA and offline — 2026-10-08 — vite-plugin-pwa (prompt mode, app-shell precache only, no runtime caching), manifest + generated icons, update prompt; e2e J15 offline, J16 update prompt, CDP installability (no errors), precache content check; route code-splitting: initial JS 136 KB gz (size-limit 250 KB).
+- [x] 🏁 M1 tagged `v0.1.0` — 2026-10-08 — local tag (no remote yet).
 
 ### Phase 2 — Data portability
 - [ ] 2.1 CSV export
@@ -665,6 +665,7 @@ It must contain:
 - 2026-10-07 — Field error messages always reserve their line: on blur validation an appearing message shifted the Save button under the pointer and swallowed the click (found by e2e; invisible in jsdom). The transaction editor does not cache single rows (`gcTime: 0`) so a background refetch never remounts the form mid-interaction.
 - 2026-10-07 — List filter state lives in React state mirrored to the URL (the router's setSearchParams is async and its updater sees the render-time params), so quick successive filter changes never overwrite each other; the URL is adopted on load/back-forward. The unlock guard keeps the query string so filters survive lock and reload.
 - 2026-10-07 — Chart colors: dataviz reference slots 1–2 (#2a78d6/#eb6834 light, #3987e5/#d95926 dark) pass the palette validator (CVD ΔE ≥ 24.7, contrast ≥ 3:1) on the card surfaces. Category colors are user data, so the category chart uses one hue and shows each category's color only as a swatch next to its name.
+- 2026-10-08 — Lighthouse ≥ 12 has no PWA category; installability is asserted in e2e via CDP `Page.getInstallabilityErrors`. `lighthouserc.json` (perf/a11y/best-practices budgets) runs via `pnpm lhci` in the nightly pipeline. J16 simulates a new deployment by registering `/sw.js?next-version` because Playwright cannot route the browser's own service-worker update fetch.
 
 ### Open questions
 - Step 1.4 DoD item 4 (OPFS bytes contain no known note string) is verified in a real Chromium by the browser-mode test; the Playwright version is added in Step 1.6 (first UI field with free text), after which 1.4 is ticked.

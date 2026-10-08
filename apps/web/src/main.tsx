@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import { App } from './app/App';
 import { createBrowserServices } from './app/browser-services';
+import { PwaUpdater } from './app/PwaUpdater';
 import { initI18n } from './i18n';
 import { applyTheme } from './lib/theme';
 import { readUiPrefs } from './lib/ui-prefs';
@@ -17,6 +18,6 @@ if (!container) throw new Error('Root element missing');
 
 createRoot(container).render(
   <StrictMode>
-    <App services={createBrowserServices()} />
+    <App services={createBrowserServices()} pwa={<PwaUpdater />} />
   </StrictMode>,
 );

@@ -18,7 +18,11 @@ const TEST_FILES = [
 ];
 
 /** Node build/CI scripts: they read build output from computed paths by design. */
-const SCRIPT_FILES = ['scripts/**/*.{js,mjs,ts}', 'packages/*/scripts/**/*.{js,mjs,ts}'];
+const SCRIPT_FILES = [
+  'scripts/**/*.{js,mjs,ts}',
+  'packages/*/scripts/**/*.{js,mjs,ts}',
+  'apps/*/scripts/**/*.{js,mjs,ts}',
+];
 
 /** The only module allowed to touch localStorage/sessionStorage (theme + language prefs). */
 const UI_PREFS_FILE = 'apps/web/src/lib/ui-prefs.ts';

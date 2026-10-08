@@ -8,7 +8,7 @@ import {
   Tags,
   type LucideIcon,
 } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
+import { Suspense, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router';
 
@@ -129,7 +129,9 @@ export function AppShell() {
         )}
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 p-4 outline-none">
           <ToastProvider>
-            <Outlet />
+            <Suspense fallback={<p role="status">{t('app.loading')}</p>}>
+              <Outlet />
+            </Suspense>
           </ToastProvider>
         </main>
       </div>
