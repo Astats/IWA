@@ -615,8 +615,8 @@ It must contain:
 ### Phase 2 — Data portability
 - [x] 2.1 CSV export — 2026-10-08 — pure exporter in @budget/core/csv (BOM, CRLF, RFC 4180 quoting, formula escaping incl. after whitespace); export all (Import/Export page) or the current filtered view (Transactions page) via a revoked Blob URL; tests: every dangerous prefix, Unicode, quoting, property-based export→import round trip (40 random ledgers), e2e SEC-W10.
 - [x] 2.2 CSV import — 2026-10-08 — Papa Parse streaming in a dedicated worker (size limit before reading, row/field limits while parsing), Zod per-row validation collecting every error, preview (counts, first 50 rows, error CSV download, skip-duplicates / create-categories options), single bulkInsert commit; 16 fixtures in test-data/csv + fuzz; e2e J10, J11, SEC-W11. UI @perf with 10,000 imported rows: first page 173 ms, sort 70 ms.
-- [ ] 2.3 Encrypted local backup and restore
-- [ ] 🏁 M2 tagged `v0.2.0`
+- [x] 2.3 Encrypted local backup and restore — 2026-10-08 — @budget/backup (BGTB v1: Argon2id fresh salt, header AAD, gzip via CompressionStream with a 200 MB decompression cap, Zod-validated payload); Backup page: download (current passphrase verified), restore replace/merge with confirmation and an automatic pre-restore backup; golden file test-data/backup/v1; e2e J12 + SEC-W09.
+- [x] 🏁 M2 tagged `v0.2.0` — 2026-10-08 — local tag (no remote yet).
 
 ### Phase 3 — Cloud backup
 - [ ] 3.1 Provider framework
@@ -668,6 +668,8 @@ It must contain:
 - 2026-10-08 — Lighthouse ≥ 12 has no PWA category; installability is asserted in e2e via CDP `Page.getInstallabilityErrors`. `lighthouserc.json` (perf/a11y/best-practices budgets) runs via `pnpm lhci` in the nightly pipeline. J16 simulates a new deployment by registering `/sw.js?next-version` because Playwright cannot route the browser's own service-worker update fetch.
 - 2026-10-08 — CSV escaping is bijective: export prefixes `'` to cells starting (after whitespace) with `= + - @ TAB CR` *and* to cells already starting with `'`; import removes exactly one leading `'`, so export → import reproduces every note and category name exactly.
 - 2026-10-08 — Import commit: new categories are created first, then all rows go in one `bulkInsert` transaction; if that fails, the categories created by the import are soft-deleted again, so a failed import leaves nothing visible. Rows with unknown categories are only imported after the user ticks “Create missing categories”.
+- 2026-10-08 — The pre-restore backup is encrypted with the passphrase entered for the restore (the app never holds the vault passphrase), saved next to the vault as `pre-restore.bgtb` and offered for download after the restore. Backup key derivation runs on the main thread (one Argon2id per explicit action, with a busy indicator).
+- 2026-10-08 — SECURITY.md: the threat model, cryptography summary and CSP sections planned for Steps 1.2/1.5 had not actually been written (scripted edits silently missed after Prettier re-wrapped the file). They were completed in the Step 2.3 commit.
 
 ### Open questions
 - ~~Step 1.4 DoD item 4 Playwright check~~ — resolved 2026-10-07: added in e2e/specs/storage.spec.ts (Step 1.6), 1.4 ticked.

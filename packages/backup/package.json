@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@budget/core": "workspace:*",
-    "@budget/crypto": "workspace:*"
+    "@budget/crypto": "workspace:*",
+    "zod": "4.6.5"
   }
 }

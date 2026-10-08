@@ -33,10 +33,23 @@ export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
  * NFC-normalized so the same text typed on different devices yields the same key. The KEK is a
  * non-extractable AES-GCM key usable only to wrap/unwrap the DEK.
  */
-export async function deriveKek(
+export function deriveKek(
   passphrase: string,
   salt: Uint8Array,
   params: KdfParams,
+): Promise<CryptoKey> {
+  return deriveKey(passphrase, salt, params, ['wrapKey', 'unwrapKey']);
+}
+
+/**
+ * Argon2id → non-extractable AES-256-GCM key with the given usages. Backups use
+ * `['encrypt', 'decrypt']` (a fresh salt per backup, AD13); the vault uses {@link deriveKek}.
+ */
+export async function deriveKey(
+  passphrase: string,
+  salt: Uint8Array,
+  params: KdfParams,
+  usages: KeyUsage[],
 ): Promise<CryptoKey> {
   const p = kdfParamsSchema.parse(params);
   const raw = await argon2id({
@@ -51,10 +64,7 @@ export async function deriveKek(
   const keyBytes = copy(raw);
   raw.fill(0);
   try {
-    return await subtle().importKey('raw', keyBytes, { name: 'AES-GCM' }, false, [
-      'wrapKey',
-      'unwrapKey',
-    ]);
+    return await subtle().importKey('raw', keyBytes, { name: 'AES-GCM' }, false, usages);
   } finally {
     keyBytes.fill(0);
   }

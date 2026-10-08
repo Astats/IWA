@@ -231,8 +231,9 @@ export default tseslint.config(
       // Tests inspect Web Storage to prove nothing sensitive is stored there (SEC-W03).
       'no-restricted-globals': 'off',
       'no-restricted-imports': 'off',
-      // Test files legitimately build paths and read fixtures from disk.
+      // Test files legitimately build paths, read fixtures and build regexes from known strings.
       'security/detect-non-literal-fs-filename': 'off',
+      'security/detect-non-literal-regexp': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       // expect(mock.method) passes methods unbound by design.
       '@typescript-eslint/unbound-method': 'off',

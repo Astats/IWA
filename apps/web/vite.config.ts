@@ -6,6 +6,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 import { cspPolicy } from './csp.mjs';
+import pkg from './package.json' with { type: 'json' };
 
 /** Injects the CSP meta tag into production builds only (dev needs inline HMR scripts/styles). */
 function cspMeta(): Plugin {
@@ -26,6 +27,7 @@ function cspMeta(): Plugin {
 }
 
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
     tailwindcss(),

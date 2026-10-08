@@ -1,3 +1,5 @@
+import { PRODUCTION_KDF_PARAMS } from '@budget/core';
+
 import type { AppServices, VaultResult, VaultService } from '@/di';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
@@ -24,5 +26,11 @@ export function createBrowserServices(): AppServices {
       return navigator.storage.persist();
     },
   };
-  return { vault, parseCsv: parseCsvInWorker, now: () => new Date() };
+  return {
+    vault,
+    parseCsv: parseCsvInWorker,
+    kdfParams: PRODUCTION_KDF_PARAMS,
+    appVersion: __APP_VERSION__,
+    now: () => new Date(),
+  };
 }

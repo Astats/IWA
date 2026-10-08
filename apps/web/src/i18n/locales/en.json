@@ -296,7 +296,43 @@
     }
   },
   "backup": {
-    "title": "Backup"
+    "title": "Backup",
+    "downloadTitle": "Download an encrypted backup",
+    "downloadIntro": "Saves all your data in one encrypted file. Keep it somewhere safe; you need your passphrase to restore it.",
+    "currentPassphrase": "Current passphrase",
+    "download": "Download backup file",
+    "working": "Working…",
+    "downloaded": "Backup downloaded.",
+    "restoreTitle": "Restore from a backup file",
+    "restoreIntro": "Restore a .bgtb backup created by this app, on this or another device.",
+    "file": "Backup file",
+    "backupPassphrase": "Backup passphrase",
+    "backupPassphraseHint": "The passphrase that was used when the backup was made. Your unlock passphrase does not change.",
+    "mode": "Restore mode",
+    "modes": {
+      "merge": "Merge",
+      "mergeHint": "keep current data; for items in both, the newer version wins.",
+      "replace": "Replace",
+      "replaceHint": "delete all current data and use only the backup."
+    },
+    "openBackup": "Open backup",
+    "confirmTitle": "Confirm restore",
+    "summary": "Backup from {{date}}: {{transactions}} transaction(s), {{categories}} categories.",
+    "replaceWarning": "All data on this device will be replaced by the backup. A copy of your current data is saved first.",
+    "mergeInfo": "The backup will be merged into your current data. A copy of your current data is saved first.",
+    "confirmReplace": "Replace all data",
+    "confirmMerge": "Merge backup",
+    "replaced": "Backup restored. Your data was replaced.",
+    "merged": "Backup merged into your data.",
+    "downloadPreRestore": "Download the copy of your previous data",
+    "restoreAnother": "Restore another backup",
+    "errors": {
+      "currentPassphrase": "That is not your current passphrase.",
+      "wrongPassphrase": "Wrong passphrase, or the file is damaged.",
+      "notABackup": "This is not a valid backup file.",
+      "newerVersion": "This backup was made by a newer version of the app. Update the app to restore it.",
+      "invalidContents": "The backup contents are invalid. Nothing was restored."
+    }
   },
   "settings": {
     "title": "Settings",

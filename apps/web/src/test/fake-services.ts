@@ -1,6 +1,6 @@
 import type { Repositories } from '@budget/core';
 import { parseAndValidateCsv } from '@budget/core/csv';
-import { createInMemoryRepositories } from '@budget/core/testing';
+import { createInMemoryRepositories, testKdfParams } from '@budget/core/testing';
 import { vi } from 'vitest';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
@@ -93,6 +93,8 @@ export function createFakeServices(
     vault: createFakeVault(options),
     // Same pure parse/validate pipeline the worker runs, without a worker.
     parseCsv: async (file) => parseAndValidateCsv(await file.text()),
+    kdfParams: testKdfParams,
+    appVersion: '0.0.0-test',
     now: () => new Date(now),
   };
 }

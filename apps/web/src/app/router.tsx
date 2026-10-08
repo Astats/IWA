@@ -5,8 +5,11 @@ import { Link, Navigate, Outlet, useLocation, type RouteObject } from 'react-rou
 import { AppShell } from '@/components/layout/AppShell';
 import { useSession, type SessionStatus } from '@/di';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
-import { PlaceholderPage } from '@/features/placeholder/PlaceholderPage';
 import { UnlockPage } from '@/features/unlock/UnlockPage';
+
+const BackupPage = lazy(() =>
+  import('@/features/backup/BackupPage').then((m) => ({ default: m.BackupPage })),
+);
 
 const ImportExportPage = lazy(() =>
   import('@/features/import-export/ImportExportPage').then((m) => ({
@@ -153,7 +156,7 @@ export const routes: RouteObject[] = [
           { path: 'transactions/:id', element: <TransactionEditorPage /> },
           { path: 'categories', element: <CategoriesPage /> },
           { path: 'import-export', element: <ImportExportPage /> },
-          { path: 'backup', element: <PlaceholderPage titleKey="backup.title" /> },
+          { path: 'backup', element: <BackupPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: '*', element: <NotFound /> },
         ],

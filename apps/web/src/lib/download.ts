@@ -2,8 +2,9 @@
  * Saves `content` as a file through a temporary Blob URL that is revoked right after the download
  * starts (BUILD_PLAN 2.1). Nothing is uploaded anywhere.
  */
-export function downloadFile(name: string, content: BlobPart, type: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type }));
+export function downloadFile(name: string, content: string | Uint8Array, type: string): void {
+  const part = typeof content === 'string' ? content : new Uint8Array(content);
+  const url = URL.createObjectURL(new Blob([part], { type }));
   try {
     const a = document.createElement('a');
     a.href = url;

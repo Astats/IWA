@@ -371,6 +371,9 @@ importers:
       '@budget/crypto':
         specifier: workspace:*
         version: link:../crypto
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
 
   packages/core:
     dependencies:
