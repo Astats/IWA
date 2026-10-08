@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { axe } from '@/test/axe';
 
-import { TEST_PASSPHRASE } from '@/test/fake-services';
+import { createFakeServices, TEST_PASSPHRASE } from '@/test/fake-services';
 import { renderApp } from '@/test/render';
 
 describe('SettingsPage', () => {
@@ -28,6 +28,18 @@ describe('SettingsPage', () => {
       theme: 'dark',
       locale: 'en',
     });
+  });
+
+  it('keeps settings edited elsewhere (backup retention) when saving preferences', async () => {
+    const services = createFakeServices();
+    await services.vault.repos.settings.set('backupRetention', 3);
+    const app = renderApp({ services, route: '/settings' });
+
+    await app.user.selectOptions(await screen.findByLabelText('Theme'), 'dark');
+    await app.user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Settings saved.')).toBeInTheDocument();
+    expect(await services.vault.repos.settings.get('backupRetention')).toBe(3);
   });
 
   it('rejects an out-of-range auto-lock value', async () => {

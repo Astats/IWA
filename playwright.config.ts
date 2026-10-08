@@ -28,9 +28,11 @@ export default defineConfig({
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
     { name: 'mobile-safari', use: { ...devices['iPhone 15'] } },
   ],
-  // Tests run against the production build (including the CSP), never the dev server.
+  // Tests run against a production build (including the CSP), never the dev server. It is built in
+  // the `e2e` mode, which only adds the fake cloud provider (src/app/e2e-hooks.ts) and fake OAuth
+  // client ids (.env.e2e); `pnpm build` proves none of that reaches the real dist/ (SEC-W14).
   webServer: {
-    command: `pnpm --filter web build && pnpm --filter web preview --port ${PORT}`,
+    command: `pnpm --filter web build:e2e && pnpm --filter web preview:e2e --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

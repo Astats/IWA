@@ -171,11 +171,22 @@ export function newTransactionWithCategorySchema(
 }
 
 // ---- Settings ----
+/** Cloud backups kept per provider (BUILD_PLAN 3.1). */
+export const DEFAULT_BACKUP_RETENTION = 10;
+export const MAX_BACKUP_RETENTION = 100;
+
 export const settingsSchema = z.object({
   baseCurrency: currencySchema,
   locale: z.string().trim().min(2).max(35),
   theme: z.enum(THEMES),
   autoLockMinutes: z.number().int().min(1).max(120),
+  // Added after backup format v1: older backups and vaults lack it, so it has a default.
+  backupRetention: z
+    .number()
+    .int()
+    .min(1)
+    .max(MAX_BACKUP_RETENTION)
+    .default(DEFAULT_BACKUP_RETENTION),
   schemaVersion: z.number().int().min(0),
 });
 export type Settings = z.infer<typeof settingsSchema>;
@@ -186,6 +197,7 @@ export const DEFAULT_SETTINGS: Settings = {
   locale: 'en',
   theme: 'system',
   autoLockMinutes: 5,
+  backupRetention: DEFAULT_BACKUP_RETENTION,
   schemaVersion: 0,
 };
 

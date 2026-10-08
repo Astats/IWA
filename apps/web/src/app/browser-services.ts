@@ -1,3 +1,4 @@
+import { createProviderRegistry, type BackupProvider } from '@budget/backup';
 import { PRODUCTION_KDF_PARAMS } from '@budget/core';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
@@ -5,7 +6,7 @@ import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
 
 /** Production services: the encrypted storage worker (AD5). */
-export function createBrowserServices(): AppServices {
+export function createBrowserServices(extraProviders: BackupProvider[] = []): AppServices {
   const { api, failed } = startDbWorker();
   // Every call fails fast (instead of hanging) if the worker could not load or crashed.
   const call = <T>(p: Promise<T>): Promise<T> => Promise.race([p, failed]);
@@ -31,6 +32,7 @@ export function createBrowserServices(): AppServices {
     parseCsv: parseCsvInWorker,
     kdfParams: PRODUCTION_KDF_PARAMS,
     appVersion: __APP_VERSION__,
+    backupProviders: createProviderRegistry([...extraProviders]),
     now: () => new Date(),
   };
 }

@@ -69,6 +69,21 @@ describe('ESLint architecture boundaries', () => {
     expect(errors).toContain('no-restricted-imports');
   });
 
+  it.each(['apps/web/src/app/browser-services.ts', 'apps/web/src/features/backup/x.ts'])(
+    'rejects the fake cloud provider in production code (%s)',
+    async (virtualPath) => {
+      const errors = await lintFixture('imports-fake-provider.ts', virtualPath);
+
+      expect(errors).toContain('no-restricted-imports');
+    },
+  );
+
+  it('allows the fake cloud provider only in the e2e hook module', async () => {
+    const errors = await lintFixture('imports-fake-provider.ts', 'apps/web/src/app/e2e-hooks.ts');
+
+    expect(errors).not.toContain('no-restricted-imports');
+  });
+
   it('allows db importing crypto', async () => {
     const errors = await lintFixture('packages/core/src/imports-crypto.ts', 'packages/db/src/x.ts');
 

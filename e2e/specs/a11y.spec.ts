@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 
 import { expect, test, TEST_PASSPHRASE } from '../fixtures/app.fixture';
+import { BackupPage } from '../pages/BackupPage';
 
 async function expectNoSeriousViolations(page: Page, label: string) {
   const results = await new AxeBuilder({ page })
@@ -37,6 +38,11 @@ test.describe('@a11y accessibility (axe-core)', () => {
       await expectNoSeriousViolations(page, 'dashboard');
       await app.shell.navigate('Settings');
       await expectNoSeriousViolations(page, 'settings');
+      const backup = new BackupPage(page);
+      await backup.goto();
+      await backup.connect('Test storage');
+      await backup.backUpNow('Test storage', TEST_PASSPHRASE);
+      await expectNoSeriousViolations(page, 'backup (cloud provider connected)');
       await app.shell.lock();
       await expectNoSeriousViolations(page, 'unlock');
       await app.unlock.unlock('wrong passphrase here');

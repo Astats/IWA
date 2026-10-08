@@ -206,6 +206,7 @@ describe('settingsSchema', () => {
     locale: 'en',
     theme: 'dark',
     autoLockMinutes: 5,
+    backupRetention: 3,
     schemaVersion: 1,
   };
 
@@ -213,11 +214,19 @@ describe('settingsSchema', () => {
     expect(settingsSchema.parse(valid)).toEqual(valid);
   });
 
+  it('defaults backupRetention for settings written before it existed', () => {
+    const { backupRetention: _omitted, ...older } = valid;
+    expect(settingsSchema.parse(older).backupRetention).toBe(10);
+  });
+
   it.each([
     ['baseCurrency', 'EU'],
     ['theme', 'blue'],
     ['autoLockMinutes', 0],
     ['autoLockMinutes', 121],
+    ['backupRetention', 0],
+    ['backupRetention', 101],
+    ['backupRetention', 2.5],
     ['locale', ''],
   ])('rejects %s = %j', (field, value) => {
     expect(settingsSchema.safeParse({ ...valid, [field]: value }).success).toBe(false);

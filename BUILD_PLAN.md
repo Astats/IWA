@@ -619,7 +619,7 @@ It must contain:
 - [x] 🏁 M2 tagged `v0.2.0` — 2026-10-08 — local tag (no remote yet).
 
 ### Phase 3 — Cloud backup
-- [ ] 3.1 Provider framework
+- [x] 3.1 Provider framework — 2026-10-08 — `BackupProvider` + typed `ProviderError`, registry, Zod-validated listings, retention (default 10, `backupRetention` setting; the just-uploaded file is never pruned), `FakeBackupProvider` + provider contract suite; Backup screen: connect/disconnect, back up now, last backup, remote list with restore (shared RestoreFlow incl. pre-restore copy) and delete; sessions dropped on lock; e2e J13 (fake) + axe; SEC-W18 added.
 - [ ] 3.2 Microsoft OneDrive
 - [ ] 3.3 Google Drive
 - [ ] 3.4 Dropbox
@@ -670,6 +670,10 @@ It must contain:
 - 2026-10-08 — Import commit: new categories are created first, then all rows go in one `bulkInsert` transaction; if that fails, the categories created by the import are soft-deleted again, so a failed import leaves nothing visible. Rows with unknown categories are only imported after the user ticks “Create missing categories”.
 - 2026-10-08 — The pre-restore backup is encrypted with the passphrase entered for the restore (the app never holds the vault passphrase), saved next to the vault as `pre-restore.bgtb` and offered for download after the restore. Backup key derivation runs on the main thread (one Argon2id per explicit action, with a busy indicator).
 - 2026-10-08 — SECURITY.md: the threat model, cryptography summary and CSP sections planned for Steps 1.2/1.5 had not actually been written (scripted edits silently missed after Prettier re-wrapped the file). They were completed in the Step 2.3 commit.
+
+- 2026-10-08 — **E2E runs against `vite build --mode e2e`** (`apps/web/dist-e2e`). The only difference from production is the e2e hook (`src/app/e2e-hooks.ts`: an in-memory fake cloud provider on `window.__E2E_HOOKS__`), loaded behind `import.meta.env.MODE === 'e2e'` (TEST_PLAN rule 5). `pnpm build` + verify-build prove the marker is absent from `dist/`; ESLint bans `@budget/backup/testing` outside that module.
+- 2026-10-08 — `backupRetention` is a new settings key with a Zod default, so vaults and backups written before it still validate; golden-file tests compare against their frozen JSON with later-added defaults applied. The Settings form now picks its fields explicitly (with `omit`, saving preferences would have reset retention to the default).
+- 2026-10-08 — Provider sessions (tokens) are memory-only and `ProviderRegistry.disconnectAll()` runs on every lock, so after unlock (or reload) the user reconnects. The "last backup" in 3.1 is read from the provider listing; 3.5 adds a persisted last-successful-backup time.
 
 ### Open questions
 - ~~Step 1.4 DoD item 4 Playwright check~~ — resolved 2026-10-07: added in e2e/specs/storage.spec.ts (Step 1.6), 1.4 ticked.

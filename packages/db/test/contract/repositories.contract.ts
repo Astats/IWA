@@ -669,6 +669,7 @@ export function runRepositoryContract(name: string, makeRepos: MakeRepos): void 
           baseCurrency: 'EUR',
           theme: 'system',
           autoLockMinutes: 5,
+          backupRetention: 10,
         });
         expect(defaults.schemaVersion).toBeGreaterThanOrEqual(1);
 
@@ -678,6 +679,8 @@ export function runRepositoryContract(name: string, makeRepos: MakeRepos): void 
 
         expect(await repos.settings.get('baseCurrency')).toBe('USD');
         expect(await repos.settings.get('theme')).toBe('light');
+        await repos.settings.set('backupRetention', 3);
+        expect(await repos.settings.get('backupRetention')).toBe(3);
         await expect(repos.settings.set('autoLockMinutes', 0)).rejects.toThrow();
         await expect(repos.settings.set('schemaVersion', 99)).rejects.toThrow();
       });

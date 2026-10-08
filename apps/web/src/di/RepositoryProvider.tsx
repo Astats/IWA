@@ -27,7 +27,11 @@ export function RepositoryProvider({
 }) {
   const [value] = useState<DiContextValue>(() => ({
     services,
-    session: createSessionStore(services.vault, onLock),
+    // Locking also drops every cloud provider session (tokens live in memory only).
+    session: createSessionStore(services.vault, () => {
+      onLock?.();
+      void services.backupProviders.disconnectAll();
+    }),
   }));
   return <DiContext.Provider value={value}>{children}</DiContext.Provider>;
 }

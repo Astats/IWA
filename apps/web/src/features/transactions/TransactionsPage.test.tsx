@@ -86,7 +86,8 @@ describe('TransactionsPage (desktop table)', () => {
     setViewport(true);
     const { services } = await seeded();
     const app = renderApp({ services, route: '/transactions' });
-    await screen.findByRole('link', { name: 'Bakery' });
+    // First render of the full table is slow under v8 coverage; allow more than the 1 s default.
+    await screen.findByRole('link', { name: 'Bakery' }, { timeout: 5000 });
 
     expect(noteOrder()).toEqual(['Bakery', 'Rent March', 'Salary Feb', 'Train', 'Rent Feb']);
     expect(screen.getByRole('columnheader', { name: /Date/ })).toHaveAttribute(

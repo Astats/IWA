@@ -1,3 +1,4 @@
+import type { ProviderRegistry } from '@budget/backup';
 import type { KdfParams, Repositories } from '@budget/core';
 import type { CsvParseOutcome } from '@budget/core/csv';
 
@@ -33,6 +34,8 @@ export interface AppServices {
   /** Argon2id parameters for backups (also the minimum accepted when opening one). */
   kdfParams: KdfParams;
   appVersion: string;
+  /** Cloud backup providers available in this build (BUILD_PLAN Phase 3). */
+  backupProviders: ProviderRegistry;
   /** Wall clock (injectable for tests). */
   now: () => Date;
 }

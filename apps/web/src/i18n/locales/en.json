@@ -332,6 +332,51 @@
       "notABackup": "This is not a valid backup file.",
       "newerVersion": "This backup was made by a newer version of the app. Update the app to restore it.",
       "invalidContents": "The backup contents are invalid. Nothing was restored."
+    },
+    "cloud": {
+      "title": "Cloud backup",
+      "intro": "Backups are encrypted on this device before they are uploaded; the provider only stores unreadable data. Sign-ins last until the app locks or reloads.",
+      "noneConfigured": "No cloud providers are set up in this version of the app.",
+      "providers": {
+        "onedrive": "Microsoft OneDrive",
+        "gdrive": "Google Drive",
+        "dropbox": "Dropbox",
+        "fake": "Test storage"
+      },
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "disconnected": "Disconnected from {{provider}} on this device.",
+      "retention": "Backups to keep per provider",
+      "retentionHint": "Older backups are deleted after each new one (1–100).",
+      "retentionInvalid": "Enter a whole number from 1 to 100.",
+      "lastBackup": "Last backup: {{date}}",
+      "noBackups": "No backups yet.",
+      "backUpNow": "Back up now",
+      "backedUp": "Backed up to {{provider}}.",
+      "retentionDeleted_one": "{{count}} older backup was deleted.",
+      "retentionDeleted_other": "{{count}} older backups were deleted.",
+      "remoteBackups": "Backups",
+      "remoteBackupsOf": "Backups in {{provider}}",
+      "restore": "Restore",
+      "restoreFrom": "Restore the backup of {{date}}.",
+      "confirmDeleteTitle": "Confirm delete",
+      "confirmDelete": "Delete the backup of {{date}}? This cannot be undone.",
+      "deleteForever": "Delete backup",
+      "errors": {
+        "authRequired": "Your sign-in has expired or was revoked. Connect again.",
+        "cancelled": "Sign-in was cancelled.",
+        "notFound": "That backup no longer exists.",
+        "rateLimited": "The provider is busy. Try again in a minute.",
+        "unavailable": "The provider could not complete the request. Try again later.",
+        "network": "Could not reach the provider. Check your connection.",
+        "notConfigured": "This provider is not set up in this version of the app."
+      },
+      "connectLabel": "Connect {{provider}}",
+      "disconnectLabel": "Disconnect {{provider}}",
+      "restoreLabel": "Restore backup of {{date}}",
+      "deleteLabel": "Delete backup of {{date}}"
     }
   },
   "settings": {
