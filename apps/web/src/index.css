@@ -127,6 +127,18 @@
   html {
     @apply font-sans;
   }
+  /* Native controls (select popups, scrollbars, date pickers) follow the active theme; without this
+     a dark-mode <select> draws its option list with light text on the browser's white popup. */
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
+  select option,
+  select optgroup {
+    @apply bg-popover text-popover-foreground;
+  }
 }
 
 /* Chart series colors (dataviz reference palette slots 1-2, validated for CVD and contrast on the
