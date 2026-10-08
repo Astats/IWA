@@ -23,10 +23,26 @@ export interface SendOptions {
    * retried because the provider did not process the request.
    */
   idempotent: boolean;
+  /** Non-2xx statuses the caller handles itself (e.g. Google's 308 "resume incomplete"). */
+  accept?: readonly number[];
 }
 
 const BASE_DELAY_MS = 500;
 const MAX_DELAY_MS = 30_000;
+
+/** Google APIs answer some rate limiting with 403 and one of these reasons. */
+const RATE_LIMIT_REASONS = /"reason"\s*:\s*"(rateLimitExceeded|userRateLimitExceeded)"/;
+
+/** True for a 429, or a 403 whose body says it is rate limiting. Consumes nothing on a clone. */
+async function isRateLimited(response: Response): Promise<boolean> {
+  if (response.status === 429) return true;
+  if (response.status !== 403) return false;
+  try {
+    return RATE_LIMIT_REASONS.test((await response.clone().text()).slice(0, 10_000));
+  } catch {
+    return false;
+  }
+}
 
 /** Maps an unsuccessful status to a typed error code. */
 export function statusToCode(status: number): ProviderErrorCode {
@@ -57,12 +73,17 @@ export class HttpClient {
   }
 
   /** Sends a request; resolves only with a 2xx response, otherwise throws ProviderError. */
-  async send(url: string, init: RequestInit, { idempotent }: SendOptions): Promise<Response> {
+  async send(
+    url: string,
+    init: RequestInit,
+    { idempotent, accept = [] }: SendOptions,
+  ): Promise<Response> {
     for (let attempt = 0; ; attempt++) {
       const canRetry = attempt < this.maxRetries;
       let response: Response;
       try {
-        response = await this.fetchFn(url, { ...init, redirect: 'error' });
+        // Redirects fail by default; a caller may opt in (Google's 308 "resume incomplete").
+        response = await this.fetchFn(url, { redirect: 'error', ...init });
       } catch {
         if (idempotent && canRetry) {
           await this.sleep(Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS));
@@ -70,8 +91,9 @@ export class HttpClient {
         }
         throw new ProviderError('NETWORK');
       }
-      if (response.ok) return response;
-      const retryable = response.status === 429 || (idempotent && response.status >= 500);
+      if (response.ok || accept.includes(response.status)) return response;
+      const rateLimited = await isRateLimited(response);
+      const retryable = rateLimited || (idempotent && response.status >= 500);
       if (retryable && canRetry) {
         await response.body?.cancel();
         await this.sleep(retryAfterMs(response, attempt));
@@ -79,11 +101,16 @@ export class HttpClient {
       }
       await response.body?.cancel();
       throw new ProviderError(
-        statusToCode(response.status),
+        rateLimited ? 'RATE_LIMITED' : statusToCode(response.status),
         `HTTP ${response.status}`,
         response.status,
       );
     }
+  }
+
+  /** Waits the backoff delay for the given retry attempt (0-based). */
+  backoff(attempt: number): Promise<void> {
+    return this.sleep(Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS));
   }
 
   /** Sends a request and validates its JSON body. */
@@ -153,6 +180,11 @@ export interface OAuthSession {
   getAccessToken(): Promise<string>;
   /** Forgets tokens on this device. */
   signOut(): Promise<void>;
+  /**
+   * Loads what `signIn` needs (e.g. a sign-in library), so `signIn` can open its window straight
+   * from the user's click without being blocked as a popup.
+   */
+  prepare?(): Promise<void>;
 }
 
 /**

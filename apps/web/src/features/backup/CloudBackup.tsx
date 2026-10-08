@@ -9,7 +9,7 @@ import {
 import { DEFAULT_BACKUP_RETENTION, settingsSchema } from '@budget/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CloudUpload, LogIn, LogOut, RotateCcw, Trash2 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Field } from '@/components/form/Field';
@@ -312,6 +312,11 @@ function ProviderPanel({ provider }: { provider: BackupProvider }) {
     enabled: connected,
     gcTime: 0,
   });
+
+  // Load the provider's sign-in library now, so Connect can open its window from the click.
+  useEffect(() => {
+    provider.prepare?.().catch(() => undefined);
+  }, [provider]);
 
   /** After any failure: an expired or revoked session shows as disconnected. */
   const syncConnection = (err: unknown) => {

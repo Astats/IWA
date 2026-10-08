@@ -1,7 +1,13 @@
-import { createProviderRegistry, OneDriveProvider, type BackupProvider } from '@budget/backup';
+import {
+  createProviderRegistry,
+  GoogleDriveProvider,
+  OneDriveProvider,
+  type BackupProvider,
+} from '@budget/backup';
 import { PRODUCTION_KDF_PARAMS } from '@budget/core';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
+import { createGoogleSession } from '@/cloud/google-session';
 import { createMicrosoftSession } from '@/cloud/microsoft-session';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
@@ -19,6 +25,10 @@ function configuredProviders(): BackupProvider[] {
         }),
       ),
     );
+  }
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  if (googleClientId) {
+    providers.push(new GoogleDriveProvider(createGoogleSession({ clientId: googleClientId })));
   }
   return providers;
 }

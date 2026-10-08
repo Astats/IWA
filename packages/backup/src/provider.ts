@@ -69,6 +69,8 @@ export interface BackupProvider {
   readonly id: ProviderId;
   /** True while the provider holds a usable session. */
   isConnected(): boolean;
+  /** Optional warm-up (called when the Backup screen shows the provider). */
+  prepare?(): Promise<void>;
   /** Signs in (OAuth popup/redirect). Throws ProviderError('CANCELLED') when the user aborts. */
   connect(): Promise<void>;
   /** Backups in the app folder, newest first. Foreign files are ignored. */

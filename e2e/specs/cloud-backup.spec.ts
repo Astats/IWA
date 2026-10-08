@@ -1,14 +1,33 @@
 import type { Page } from '@playwright/test';
 
-import { expect, test, TEST_PASSPHRASE, type AppPages } from '../fixtures/app.fixture';
-import { FakeMicrosoft, MS_ACCESS_TOKEN } from '../fixtures/providers/microsoft';
+import {
+  E2E_GOOGLE_CLIENT_ID,
+  E2E_MS_CLIENT_ID,
+  expect,
+  test,
+  TEST_PASSPHRASE,
+  type AppPages,
+} from '../fixtures/app.fixture';
+import { GOOGLE_ACCESS_TOKEN } from '../fixtures/providers/google';
+import { MS_ACCESS_TOKEN } from '../fixtures/providers/microsoft';
 import { BackupPage } from '../pages/BackupPage';
 import { TransactionsPage } from '../pages/TransactionsPage';
 
 const FAKE = 'Test storage';
 const ONEDRIVE = 'Microsoft OneDrive';
-/** Client id the e2e build is made with (apps/web/.env.e2e). */
-const E2E_MS_CLIENT_ID = '00000000-0000-4000-8000-00000000e2e0';
+const GDRIVE = 'Google Drive';
+
+/** Web Storage and IndexedDB must never hold provider tokens (BUILD_PLAN §6.1). */
+async function expectNoTokensStored(page: Page, token: string) {
+  const storage = await page.evaluate(async () => ({
+    local: Object.entries(localStorage),
+    session: Object.entries(sessionStorage),
+    databases: (await indexedDB.databases()).map((d) => d.name ?? ''),
+  }));
+  expect(storage.local.map(([key]) => key)).toEqual(['budget.ui-prefs']);
+  expect(JSON.stringify([...storage.local, ...storage.session])).not.toContain(token);
+  expect(storage.databases.filter((name) => /msal|google|gsi/i.test(name))).toEqual([]);
+}
 
 /** Revokes the session of the e2e-only fake provider (present in `--mode e2e` builds only). */
 function revokeFakeSession(page: Page) {
@@ -87,12 +106,9 @@ test.describe('J13 cloud backup (Microsoft OneDrive, mocked)', () => {
   test('full journey through the real MSAL popup flow', async ({
     onboardedApp: app,
     page,
-    context,
+    cloud: { microsoft },
   }) => {
     test.setTimeout(90_000);
-    const microsoft = new FakeMicrosoft(E2E_MS_CLIENT_ID);
-    await microsoft.install(context);
-
     await cloudJourney(page, app, ONEDRIVE);
 
     // Only ciphertext reached the provider.
@@ -104,10 +120,8 @@ test.describe('J13 cloud backup (Microsoft OneDrive, mocked)', () => {
   test('@security SEC-W13 PKCE S256, state, minimal scope; tokens in memory only', async ({
     onboardedApp: _app,
     page,
-    context,
+    cloud: { microsoft },
   }) => {
-    const microsoft = new FakeMicrosoft(E2E_MS_CLIENT_ID);
-    await microsoft.install(context);
     const backup = new BackupPage(page);
     await backup.goto();
 
@@ -129,15 +143,7 @@ test.describe('J13 cloud backup (Microsoft OneDrive, mocked)', () => {
       `${new URL(page.url()).origin}/auth/callback/microsoft`,
     );
 
-    // Tokens are never written to Web Storage or IndexedDB (BUILD_PLAN §6.1).
-    const storage = await page.evaluate(async () => ({
-      local: Object.entries(localStorage),
-      session: Object.entries(sessionStorage),
-      databases: (await indexedDB.databases()).map((d) => d.name ?? ''),
-    }));
-    expect(storage.local.map(([key]) => key)).toEqual(['budget.ui-prefs']);
-    expect(JSON.stringify([...storage.local, ...storage.session])).not.toContain(MS_ACCESS_TOKEN);
-    expect(storage.databases.filter((name) => /msal/i.test(name))).toEqual([]);
+    await expectNoTokensStored(page, MS_ACCESS_TOKEN);
     // Graph only ever received the issued token.
     expect(microsoft.graphRequests.every((r) => r.authorized)).toBe(true);
   });
@@ -145,19 +151,95 @@ test.describe('J13 cloud backup (Microsoft OneDrive, mocked)', () => {
   test('access revoked at Microsoft → reconnect prompt', async ({
     onboardedApp: _app,
     page,
-    context,
     guard,
+    cloud: { microsoft },
   }) => {
     // Chrome logs every failed response; the 401 is the point of this test.
     guard.expectConsoleError(/status of 401/);
-    const microsoft = new FakeMicrosoft(E2E_MS_CLIENT_ID);
-    await microsoft.install(context);
     const backup = new BackupPage(page);
     await backup.goto();
     await backup.connect(ONEDRIVE);
     const section = backup.provider(ONEDRIVE);
     await expect(section.getByText('No backups yet.')).toBeVisible();
     microsoft.revoke();
+
+    await section.getByLabel('Current passphrase').fill(TEST_PASSPHRASE);
+    await section.getByRole('button', { name: 'Back up now' }).click();
+
+    await expect(section.getByRole('alert')).toHaveText(
+      'Your sign-in has expired or was revoked. Connect again.',
+    );
+    await expect(section.getByText('Not connected')).toBeVisible();
+  });
+});
+
+test.describe('J13 cloud backup (Google Drive, mocked)', () => {
+  test('full journey through the GIS token client', async ({
+    onboardedApp: app,
+    page,
+    cloud: { google },
+  }) => {
+    test.setTimeout(90_000);
+    await cloudJourney(page, app, GDRIVE);
+
+    const [stored] = [...google.files.values()];
+    expect(stored?.bytes.subarray(0, 4).toString()).toBe('BGTB');
+    expect(stored?.bytes.includes(Buffer.from('Lunch'))).toBe(false);
+  });
+
+  test('@security SEC-W13 only drive.appdata is requested; token in memory only', async ({
+    onboardedApp: _app,
+    page,
+    cloud: { google },
+  }) => {
+    const backup = new BackupPage(page);
+    await backup.goto();
+    await backup.connect(GDRIVE);
+    await expect(backup.provider(GDRIVE).getByText('No backups yet.')).toBeVisible();
+
+    const configs = await page.evaluate(
+      () => (window as unknown as { __fakeGis: { configs: unknown[] } }).__fakeGis.configs,
+    );
+    expect(configs).toEqual([
+      { client_id: E2E_GOOGLE_CLIENT_ID, scope: 'https://www.googleapis.com/auth/drive.appdata' },
+    ]);
+    await expectNoTokensStored(page, GOOGLE_ACCESS_TOKEN);
+    expect(google.apiRequests.every((r) => r.authorized)).toBe(true);
+    // Drive calls stay inside the hidden app folder.
+    expect(
+      google.apiRequests
+        .filter((r) => r.method === 'GET' && new URL(r.url).pathname === '/drive/v3/files')
+        .every((r) => new URL(r.url).searchParams.get('spaces') === 'appDataFolder'),
+    ).toBe(true);
+  });
+
+  test('denied consent stays disconnected', async ({ onboardedApp: _app, page }) => {
+    const backup = new BackupPage(page);
+    await backup.goto();
+    await expect(backup.provider(GDRIVE).getByText('Not connected')).toBeVisible();
+    await page.evaluate(() => {
+      (window as unknown as { __fakeGis: { deny: boolean } }).__fakeGis.deny = true;
+    });
+
+    await page.getByRole('button', { name: 'Connect ' + GDRIVE }).click();
+
+    await expect(backup.provider(GDRIVE).getByRole('alert')).toHaveText('Sign-in was cancelled.');
+    await expect(backup.provider(GDRIVE).getByText('Not connected')).toBeVisible();
+  });
+
+  test('access revoked at Google → reconnect prompt', async ({
+    onboardedApp: _app,
+    page,
+    guard,
+    cloud: { google },
+  }) => {
+    guard.expectConsoleError(/status of 401/);
+    const backup = new BackupPage(page);
+    await backup.goto();
+    await backup.connect(GDRIVE);
+    const section = backup.provider(GDRIVE);
+    await expect(section.getByText('No backups yet.')).toBeVisible();
+    google.revoke();
 
     await section.getByLabel('Current passphrase').fill(TEST_PASSPHRASE);
     await section.getByRole('button', { name: 'Back up now' }).click();
