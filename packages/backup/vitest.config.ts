@@ -5,5 +5,6 @@ export default defineProject({
     name: 'backup',
     environment: 'node',
     include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
+    setupFiles: ['./test/msw.ts'],
   },
 });

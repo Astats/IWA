@@ -1,9 +1,27 @@
-import { createProviderRegistry, type BackupProvider } from '@budget/backup';
+import { createProviderRegistry, OneDriveProvider, type BackupProvider } from '@budget/backup';
 import { PRODUCTION_KDF_PARAMS } from '@budget/core';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
+import { createMicrosoftSession } from '@/cloud/microsoft-session';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
+
+/** Cloud providers whose OAuth client ids are configured in this build (BUILD_PLAN Phase 3). */
+function configuredProviders(): BackupProvider[] {
+  const providers: BackupProvider[] = [];
+  const msClientId = import.meta.env.VITE_MS_CLIENT_ID;
+  if (msClientId) {
+    providers.push(
+      new OneDriveProvider(
+        createMicrosoftSession({
+          clientId: msClientId,
+          redirectUri: `${window.location.origin}/auth/callback/microsoft`,
+        }),
+      ),
+    );
+  }
+  return providers;
+}
 
 /** Production services: the encrypted storage worker (AD5). */
 export function createBrowserServices(extraProviders: BackupProvider[] = []): AppServices {
@@ -32,7 +50,7 @@ export function createBrowserServices(extraProviders: BackupProvider[] = []): Ap
     parseCsv: parseCsvInWorker,
     kdfParams: PRODUCTION_KDF_PARAMS,
     appVersion: __APP_VERSION__,
-    backupProviders: createProviderRegistry([...extraProviders]),
+    backupProviders: createProviderRegistry([...configuredProviders(), ...extraProviders]),
     now: () => new Date(),
   };
 }

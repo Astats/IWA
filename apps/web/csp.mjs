@@ -11,7 +11,15 @@ export const cspDirectives = {
   'img-src': ["'self'", 'data:'],
   'font-src': ["'self'"],
   'worker-src': ["'self'"],
-  'connect-src': ["'self'"],
+  // Cloud backup providers (SECURITY.md lists the reason for each origin).
+  'connect-src': [
+    "'self'",
+    // Microsoft OneDrive (Step 3.2): sign-in token endpoint, Graph API, upload/download hosts.
+    'https://login.microsoftonline.com',
+    'https://graph.microsoft.com',
+    'https://*.1drv.com',
+    'https://*.sharepoint.com',
+  ],
   'manifest-src': ["'self'"],
   'object-src': ["'none'"],
   'base-uri': ["'none'"],

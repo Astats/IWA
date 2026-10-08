@@ -23,6 +23,8 @@ __screenshots__/
 .env
 .env.*
 !.env.example
+# e2e build mode: fake, non-secret OAuth client ids for the mocked providers
+!apps/web/.env.e2e
 *.keystore
 *.jks
 *.p12

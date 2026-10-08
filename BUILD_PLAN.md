@@ -620,7 +620,7 @@ It must contain:
 
 ### Phase 3 — Cloud backup
 - [x] 3.1 Provider framework — 2026-10-08 — `BackupProvider` + typed `ProviderError`, registry, Zod-validated listings, retention (default 10, `backupRetention` setting; the just-uploaded file is never pruned), `FakeBackupProvider` + provider contract suite; Backup screen: connect/disconnect, back up now, last backup, remote list with restore (shared RestoreFlow incl. pre-restore copy) and delete; sessions dropped on lock; e2e J13 (fake) + axe; SEC-W18 added.
-- [ ] 3.2 Microsoft OneDrive
+- [ ] ⏸ 3.2 Microsoft OneDrive — 2026-10-08 — code + automated tests done: Graph adapter (app folder, pagination, simple PUT ≤ 4 MB, upload sessions in 3.125 MiB fragments with retry/416 resume/cancel on failure, downloads via pre-authenticated URL, typed errors, bounded backoff), MSAL 5 popup + PKCE with `memoryStorage`, redirect bridge page at `/auth/callback/microsoft`, CSP origins; 26 MSW adapter tests (incl. contract), 11 session tests, e2e J13 OneDrive through the real MSAL flow against mocked endpoints + SEC-W13. **Blocked on 🧑 HUMAN:** Entra app registration → `VITE_MS_CLIENT_ID` in `apps/web/.env.local`, then the manual test (connect → backup → list → restore → disconnect).
 - [ ] 3.3 Google Drive
 - [ ] 3.4 Dropbox
 - [ ] 3.5 Backup reminders and status
@@ -674,6 +674,10 @@ It must contain:
 - 2026-10-08 — **E2E runs against `vite build --mode e2e`** (`apps/web/dist-e2e`). The only difference from production is the e2e hook (`src/app/e2e-hooks.ts`: an in-memory fake cloud provider on `window.__E2E_HOOKS__`), loaded behind `import.meta.env.MODE === 'e2e'` (TEST_PLAN rule 5). `pnpm build` + verify-build prove the marker is absent from `dist/`; ESLint bans `@budget/backup/testing` outside that module.
 - 2026-10-08 — `backupRetention` is a new settings key with a Zod default, so vaults and backups written before it still validate; golden-file tests compare against their frozen JSON with later-added defaults applied. The Settings form now picks its fields explicitly (with `omit`, saving preferences would have reset retention to the default).
 - 2026-10-08 — Provider sessions (tokens) are memory-only and `ProviderRegistry.disconnectAll()` runs on every lock, so after unlock (or reload) the user reconnects. The "last backup" in 3.1 is read from the provider listing; 3.5 adds a persisted last-successful-backup time.
+
+- 2026-10-08 — **OneDrive sign-in (MSAL 5.25).** MSAL 5 returns popup responses through a redirect bridge page (`@azure/msal-browser/redirect-bridge`, BroadcastChannel), so `/auth/callback/microsoft` is a second Vite entry (`auth/callback/microsoft/index.html`) that never loads the app. A small Vite plugin serves it at the exact registered URI (no trailing slash) in dev and preview, and the service worker's navigation fallback skips `/auth/`. Phase 5's Caddy config must route that path to the same file. MSAL is loaded on first connect, so it is not in the initial bundle (initial JS 152.7 KB gz; the provider wiring added ~16 KB).
+- 2026-10-08 — CSP `connect-src` gains `login.microsoftonline.com`, `graph.microsoft.com`, `*.1drv.com` and `*.sharepoint.com` (the last two serve Graph's pre-authenticated upload/download URLs for personal and business accounts). The e2e build (`apps/web/.env.e2e`, committed, fake client id) enables OneDrive against `page.route` mocks.
+- 2026-10-08 — msw 3 renamed `onUnhandledRequest` to `onUnhandledFrame`; the adapter tests use `'error'`. The web-unit setup keeps stubbing `fetch` to reject (no adapter runs there).
 
 ### Open questions
 - ~~Step 1.4 DoD item 4 Playwright check~~ — resolved 2026-10-07: added in e2e/specs/storage.spec.ts (Step 1.6), 1.4 ticked.

@@ -14,6 +14,7 @@
     "preview:e2e": "vite preview --outDir dist-e2e"
   },
   "dependencies": {
+    "@azure/msal-browser": "5.25.0",
     "@budget/backup": "workspace:*",
     "@budget/core": "workspace:*",
     "@budget/crypto": "workspace:*",

@@ -3,8 +3,9 @@ import type { ProviderError, ProviderErrorCode } from '@budget/backup';
 const KEYS: Record<ProviderErrorCode, string> = {
   AUTH_REQUIRED: 'backup.cloud.errors.authRequired',
   CANCELLED: 'backup.cloud.errors.cancelled',
+  FORBIDDEN: 'backup.cloud.errors.forbidden',
   NOT_FOUND: 'backup.cloud.errors.notFound',
-  CONFLICT: 'backup.cloud.errors.unavailable',
+  CONFLICT: 'backup.cloud.errors.conflict',
   RATE_LIMITED: 'backup.cloud.errors.rateLimited',
   UNAVAILABLE: 'backup.cloud.errors.unavailable',
   NETWORK: 'backup.cloud.errors.network',

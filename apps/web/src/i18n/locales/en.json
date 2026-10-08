@@ -371,7 +371,9 @@
         "rateLimited": "The provider is busy. Try again in a minute.",
         "unavailable": "The provider could not complete the request. Try again later.",
         "network": "Could not reach the provider. Check your connection.",
-        "notConfigured": "This provider is not set up in this version of the app."
+        "notConfigured": "This provider is not set up in this version of the app.",
+        "forbidden": "The provider denied access to the app folder. Disconnect, then connect again and allow access.",
+        "conflict": "A backup with the same name already exists. Wait a second and try again."
       },
       "connectLabel": "Connect {{provider}}",
       "disconnectLabel": "Disconnect {{provider}}",

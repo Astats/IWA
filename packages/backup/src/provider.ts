@@ -33,6 +33,8 @@ export type ProviderErrorCode =
   | 'AUTH_REQUIRED'
   /** The user closed the sign-in window or denied consent. */
   | 'CANCELLED'
+  /** The provider refused the operation (e.g. missing permission for the app folder). */
+  | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'RATE_LIMITED'
@@ -52,6 +54,8 @@ export class ProviderError extends Error {
   constructor(
     readonly code: ProviderErrorCode,
     message: string = code,
+    /** HTTP status, when the error came from a provider response. */
+    readonly status?: number,
   ) {
     super(message);
   }
