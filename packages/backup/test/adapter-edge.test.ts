@@ -199,7 +199,7 @@ describe('Dropbox edge cases', () => {
   it.each([
     ['path/insufficient_space/..', 'UNAVAILABLE'],
     ['path/conflict/file/..', 'CONFLICT'],
-  ])('maps upload error %s to %s', async (summary, code) => {
+  ] as const)('maps upload error %s to %s', async (summary, code) => {
     const dropbox = new FakeDropbox();
     server.use(...dropbox.handlers());
     dropbox.fail(
