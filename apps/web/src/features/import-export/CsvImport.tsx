@@ -28,7 +28,7 @@ import {
 import { useRepositories, useServices } from '@/di';
 import { useFormatters } from '@/hooks/useFormatters';
 import { LEDGER_KEYS } from '@/hooks/useRepoMutation';
-import { downloadFile, timestampedName } from '@/lib/download';
+import { timestampedName } from '@/lib/download';
 
 const PREVIEW_ROWS = 50;
 const SHOWN_ERRORS = 100;
@@ -240,17 +240,17 @@ export function CsvImport() {
                   size="sm"
                   className="justify-self-start"
                   onClick={() => {
-                    downloadFile(
-                      timestampedName('budget-import-errors', 'csv', services.now()),
-                      exportErrorsCsv(
+                    void services.platform.saveFile({
+                      name: timestampedName('budget-import-errors', 'csv', services.now()),
+                      content: exportErrorsCsv(
                         preview.outcome.errors.map((e) => ({
                           row: e.row,
                           field: e.field,
                           message: errorText(e),
                         })),
                       ),
-                      'text/csv;charset=utf-8',
-                    );
+                      type: 'text/csv;charset=utf-8',
+                    });
                   }}
                 >
                   <Download aria-hidden /> {t('importExport.downloadErrors')}

@@ -7,6 +7,7 @@ import { PwaUpdater } from './app/PwaUpdater';
 import { initI18n } from './i18n';
 import { applyTheme } from './lib/theme';
 import { readUiPrefs } from './lib/ui-prefs';
+import { createPlatform } from './platform';
 import './index.css';
 
 const prefs = readUiPrefs();
@@ -21,8 +22,14 @@ const extraProviders =
 const container = document.getElementById('root');
 if (!container) throw new Error('Root element missing');
 
+const platform = createPlatform();
+
 createRoot(container).render(
   <StrictMode>
-    <App services={createBrowserServices(extraProviders)} pwa={<PwaUpdater />} />
+    <App
+      services={createBrowserServices(platform, extraProviders)}
+      // Native builds update through the app stores; a service worker would only serve stale shells.
+      pwa={platform.isNative() ? undefined : <PwaUpdater />}
+    />
   </StrictMode>,
 );

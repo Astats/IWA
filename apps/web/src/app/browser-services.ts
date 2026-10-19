@@ -12,6 +12,7 @@ import { createDropboxSession } from '@/cloud/dropbox-session';
 import { createGoogleSession } from '@/cloud/google-session';
 import { createMicrosoftSession } from '@/cloud/microsoft-session';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
+import type { PlatformService } from '@/platform';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
 
 /** Cloud providers whose OAuth client ids are configured in this build (BUILD_PLAN Phase 3). */
@@ -47,7 +48,10 @@ function configuredProviders(): BackupProvider[] {
 }
 
 /** Production services: the encrypted storage worker (AD5). */
-export function createBrowserServices(extraProviders: BackupProvider[] = []): AppServices {
+export function createBrowserServices(
+  platform: PlatformService,
+  extraProviders: BackupProvider[] = [],
+): AppServices {
   const { api, failed } = startDbWorker();
   // Every call fails fast (instead of hanging) if the worker could not load or crashed.
   const call = <T>(p: Promise<T>): Promise<T> => Promise.race([p, failed]);
@@ -74,6 +78,7 @@ export function createBrowserServices(extraProviders: BackupProvider[] = []): Ap
     kdfParams: PRODUCTION_KDF_PARAMS,
     appVersion: __APP_VERSION__,
     backupProviders: createProviderRegistry([...configuredProviders(), ...extraProviders]),
+    platform,
     now: () => new Date(),
   };
 }
