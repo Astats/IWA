@@ -694,4 +694,4 @@ It must contain:
 
 ### Open questions
 - ~~Step 1.4 DoD item 4 Playwright check~~ — resolved 2026-10-07: added in e2e/specs/storage.spec.ts (Step 1.6), 1.4 ticked.
-- 2026-10-19 — e2e `dashboard › @a11y the dashboard with charts` fails in dark mode (color-contrast 1.1:1: #0a0a0a text on #171717 on a recent-transaction category name, `.truncate.font-medium`). It fails identically on 96851b7 without the 4.1 changes, so it predates this step; the other 46 Chromium e2e tests pass.
+- ~~2026-10-19 — e2e `dashboard › @a11y the dashboard with charts` fails in dark mode (color-contrast 1.1:1: #0a0a0a text on #171717 on a recent-transaction category name, `.truncate.font-medium`).~~ — resolved 2026-10-19: not a hard-coded color. The reduced-motion rule set `transition-duration: 0.01ms` on every element, and `transition-property` defaults to `all`, so on a theme switch the inherited text color transitioned level by level down the card → list → link tree and axe read the light value. Transitions are now `0s` under reduced motion (animations keep 0.01ms for `animationend`).

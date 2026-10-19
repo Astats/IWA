@@ -152,13 +152,18 @@
   --chart-expense: #d95926;
 }
 
-/* Respect reduced-motion preferences: no transitions or animations. */
+/* Respect reduced-motion preferences: no transitions or animations. Animations keep a tiny duration so
+   `animationend` still fires (Radix exit animations wait for it). Transitions must be 0s, not a tiny
+   duration: `transition-property` defaults to `all`, so any non-zero duration would make every
+   element transition every property, and on a theme switch inherited text colors lag down deep
+   trees (dark-mode text briefly drawn in the light-theme color). */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }
