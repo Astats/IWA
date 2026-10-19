@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { createSqliteRepositories, migrateSqlite } from '../src';
-import { NativeSqlDriver } from '../src/native-driver';
+import { NativeSqlDriver, type PluginConnection } from '../src/native-driver';
 import { runRepositoryContract } from './contract/repositories.contract';
 import { FakePluginConnection } from '../src/testing/fake-plugin-connection';
 
@@ -91,5 +91,63 @@ describe('NativeSqlDriver', () => {
     await driver.close();
     await driver.close();
     await expect(driver.query('SELECT 1')).rejects.toThrow(/closed/);
+  });
+});
+
+describe('NativeSqlDriver with raw plugin results', () => {
+  /** A connection that returns exactly what the plugin's bridge may hand back. */
+  const stub = (overrides: Partial<PluginConnection>): PluginConnection => ({
+    run: () => Promise.resolve({}),
+    query: () => Promise.resolve({}),
+    beginTransaction: () => Promise.resolve({}),
+    commitTransaction: () => Promise.resolve({}),
+    rollbackTransaction: vi.fn(() => Promise.resolve({})),
+    isTransactionActive: () => Promise.resolve({}),
+    ...overrides,
+  });
+
+  it('treats missing values and change counts as empty', async () => {
+    const driver = new NativeSqlDriver(stub({}));
+
+    expect(await driver.query('SELECT 1')).toEqual([]);
+    expect(await driver.values('SELECT 1')).toEqual([]);
+    expect(await driver.exec('UPDATE t SET a = 1')).toEqual({ changes: 0 });
+  });
+
+  it('maps blobs (byte arrays) and JSON nulls/undefined', async () => {
+    const driver = new NativeSqlDriver(
+      stub({
+        query: () => Promise.resolve({ values: [{ b: [1, 2, 255], n: null, u: undefined }] }),
+      }),
+    );
+
+    expect(await driver.query('SELECT b, n, u FROM t')).toEqual([
+      { b: Uint8Array.from([1, 2, 255]), n: null, u: null },
+    ]);
+  });
+
+  it('rejects value types the bridge never produces', async () => {
+    const driver = new NativeSqlDriver(
+      stub({ query: () => Promise.resolve({ values: [{ o: { nested: true } }] }) }),
+    );
+
+    await expect(driver.query('SELECT o FROM t')).rejects.toThrow(TypeError);
+  });
+
+  it('rejects integers below the safe range too', async () => {
+    const driver = new NativeSqlDriver(stub({}));
+
+    await expect(driver.exec('SELECT ?', [-(2n ** 60n)])).rejects.toThrow(RangeError);
+    await expect(driver.exec('SELECT ?', [-5n])).resolves.toEqual({ changes: 0 });
+  });
+
+  it('does not roll back when the plugin already ended the transaction', async () => {
+    const conn = stub({ isTransactionActive: () => Promise.resolve({ result: false }) });
+    const driver = new NativeSqlDriver(conn);
+
+    await expect(
+      driver.transaction(() => Promise.reject(new Error('statement failed'))),
+    ).rejects.toThrow('statement failed');
+    expect(conn.rollbackTransaction).not.toHaveBeenCalled();
   });
 });

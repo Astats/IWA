@@ -96,7 +96,10 @@ try {
     const text = await evalInPage("document.getElementById('out')?.textContent ?? ''").catch(
       () => null,
     );
-    for (const line of (text ?? '').split('\n')) {
+    for (const raw of (text ?? '').split('\n')) {
+      // Page text comes from the device: strip line breaks and other control characters before
+      // printing, so it cannot forge or reformat log lines (CodeQL js/log-injection).
+      const line = raw.replace(/[\r\n]|\p{Cc}/gu, ' ').trim();
       if (!line || seen.has(line)) continue;
       seen.add(line);
       console.log(line);
