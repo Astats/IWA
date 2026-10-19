@@ -20,17 +20,20 @@
     {
       "description": "typescript-eslint supports TypeScript <6.1; ESLint plugins (jsx-a11y) support ESLint <=9",
       "matchPackageNames": ["typescript"],
-      "allowedVersions": "<6.1.0"
+      "allowedVersions": "<6.1.0",
+      "minimumReleaseAge": "7 days"
     },
     {
       "matchPackageNames": ["eslint", "@eslint/js"],
-      "allowedVersions": "<10.0.0"
+      "allowedVersions": "<10.0.0",
+      "minimumReleaseAge": "7 days"
     },
     {
       "description": "Group dev tooling updates",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "dev tooling (minor/patch)"
+      "groupName": "dev tooling (minor/patch)",
+      "minimumReleaseAge": "7 days"
     }
   ],
   "vulnerabilityAlerts": {
