@@ -95,9 +95,17 @@ Notes:
 ## Native shells (Capacitor)
 
 - Android and iOS wrap the same production build (`apps/web/dist`, same CSP meta tag). Android serves it from `https://localhost` and iOS from `capacitor://localhost`, so Web Crypto and OPFS run in a secure context. Nothing is loaded from a remote server (`server.url` is unset; a unit test fails if it, cleartext or mixed content is ever enabled).
-- WebView debugging and native logging (including forwarded `console` output and Capacitor's plugin-call logs) are on in debug builds only, never in release builds.
+- WebView debugging is on in debug builds only. Native logging is off in every build (`loggingBehavior: 'none'`): in debug builds Capacitor logs each plugin call with its arguments, which put the SQLCipher secret into logcat during testing (found in Step 4.2).
 - The service worker is not registered on native: app updates arrive through the stores.
 - App links use the private scheme `com.astats.budget:` (the appId, RFC 8252 §7.1), registered for the main activity (Android) and in `CFBundleURLTypes` (iOS). Any app can send such a link, so links are untrusted input: `src/platform/deep-link.ts` accepts only that scheme, no credentials or port, at most 4 KB, and hands the query only to a handler registered for the exact path. Links for any other path are dropped; a link never navigates the app.
+
+## Native storage (Android/iOS)
+
+- The ledger is a SQLCipher database (`@capacitor-community/sqlite`, `budgetSQLite.db`). Its 256-bit secret is random, generated once when the vault is created, and passed to SQLCipher as 64 hex characters.
+- At rest the secret exists only inside a passphrase vault: the same envelope as the web vault (Argon2id KEK → AES-256-GCM, KDF downgrade guard, progressive unlock delay), stored base64 in the small unencrypted database `budget-metaSQLite.db`, which holds nothing but ciphertext (the wrapped secret and encrypted side files such as the pre-restore backup).
+- Unlocking unwraps the secret and places it in the plugin's secure store (Android `EncryptedSharedPreferences` with a Keystore master key; iOS Keychain), where SQLCipher reads it when the ledger opens. Locking closes the ledger and clears the secret from that store; if the app is killed while unlocked, the next start clears it before anything else. So a stolen or rooted device at rest yields only Argon2id-protected ciphertext. Changing the passphrase re-wraps the same secret; the ledger is not re-keyed.
+- Android backup and device transfer are off (`allowBackup="false"`, `fullBackupContent="false"`, data-extraction rules excluding every domain); users move data with the app's encrypted backups.
+- Known limitation: the plugin can neither open nor delete a ledger whose vault is gone (only possible if `budget-metaSQLite.db` is deleted on its own); creating a new vault then reports a storage error until the app's data is cleared.
 
 ## Test builds
 

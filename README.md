@@ -40,6 +40,8 @@ cd apps/web && npx cap sync    # copy dist/ into the native projects
 npx cap open android           # or: cd android && ./gradlew assembleDebug
 ```
 
+`node scripts/native-contract.mjs` (in `apps/web`, emulator running) runs the repository contract suite against the native SQLCipher driver on the device. It uninstalls the app first, so the app's data on that device is lost.
+
 ## Repository layout
 
 ```

@@ -19,6 +19,7 @@
     "@budget/core": "workspace:*",
     "@budget/crypto": "workspace:*",
     "@budget/db": "workspace:*",
+    "@capacitor-community/sqlite": "8.1.1",
     "@capacitor/android": "8.5.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",

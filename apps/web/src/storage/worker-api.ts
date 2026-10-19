@@ -1,7 +1,7 @@
 import type { KdfParams } from '@budget/core';
 import type { SqlRow, SqlValue } from '@budget/db';
 
-export type StorageKind = 'opfs' | 'indexeddb';
+export type StorageKind = 'opfs' | 'indexeddb' | 'native';
 
 /** Generic, user-facing failure reasons. Never contains secrets or data. */
 export type VaultErrorCode =
