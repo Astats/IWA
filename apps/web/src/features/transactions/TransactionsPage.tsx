@@ -81,7 +81,9 @@ export function TransactionsPage() {
                 const { limit: _limit, offset: _offset, ...filters } = query;
                 // The current filtered view, every page (not just the visible one).
                 void collectTransactions(repos, filters)
-                  .then((rows) => downloadTransactionsCsv(repos, rows, services.now()))
+                  .then((rows) =>
+                    downloadTransactionsCsv(services.platform, repos, rows, services.now()),
+                  )
                   .finally(() => {
                     setExporting(false);
                   });

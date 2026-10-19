@@ -627,7 +627,7 @@ It must contain:
 - [ ] 🏁 M3 tagged `v0.3.0` — waiting for the manual provider tests of 3.2–3.4 (🧑 HUMAN client ids).
 
 ### Phase 4 — Mobile
-- [ ] 4.1 Capacitor setup
+- [x] 4.1 Capacitor setup — 2026-10-19 — Capacitor 8.5 (`@capacitor/core`, `cli`, `android`, `ios`, `app`), appId `com.astats.budget` (confirmed by the human), `androidScheme: 'https'`, WebView debugging/logging only in debug builds; `PlatformService` (`src/platform/`: `isNative()`, `saveFile`, `onDeepLink`) injected as `services.platform`, every file download now goes through it; deep-link router for `com.astats.budget:/<path>` (exact-path handlers, other links dropped) with the scheme registered on Android and iOS; no service worker on native. Tests: 36 unit (parser, router, web/native platform with mocked Capacitor, config + manifest/Info.plist checks). DoD: `pnpm --filter web build && npx cap sync` OK; debug APK runs on the API 37 emulator — onboarding creates the vault (worker, OPFS, sqlite-wasm, Argon2id under the CSP; no console errors) and an `adb` VIEW intent reaches `appUrlOpen` without navigating. iOS project generated, not built (no Mac).
 - [ ] 4.2 Native storage driver
 - [ ] 4.3 Native integrations
 - [ ] 4.4 Release builds
@@ -688,5 +688,10 @@ It must contain:
 
 - 2026-10-08 — Backup reminders default to **weekly**, and a ledger with data but no backup at all shows the reminder at once (losing an unbacked local-only ledger is the main data-loss risk). `lastBackupAt` is a settings key, so it travels inside backups: after a *replace* restore it shows the time stored in that backup, which can make the reminder appear early — harmless, and the next backup corrects it.
 
+- 2026-10-19 — **Native file saving arrives in 4.3.** On Android/iOS `platform.saveFile` rejects (`PlatformUnsupportedError`, shown as the generic error) until Step 4.3 adds `@capacitor/filesystem` + `@capacitor/share`; a Blob download does nothing in the WebView. On native the persistent-storage warning still shows: it disappears when Step 4.2 replaces the storage worker with `NativeSqlDriver`.
+- 2026-10-19 — Gradle needs JDK 21–24 (Capacitor 8 targets Java 21; Gradle 8.14.3 cannot run on JDK 25, which Android Studio bundles as its JBR). This machine builds with `JAVA_HOME=~/.jdks/openjdk-22.0.2`; in Android Studio set Settings → Build Tools → Gradle → Gradle JDK to a JDK 21–24. A broken `big-integer` store entry (empty folder) made `cap add` fail until it was reinstalled.
+- 2026-10-19 — App links are untrusted input (any app can send `com.astats.budget:` intents). Links that arrive while no handler waits (cold start) are dropped; the OAuth flows of 4.3 register their callback path before opening the browser and still validate `state`.
+
 ### Open questions
 - ~~Step 1.4 DoD item 4 Playwright check~~ — resolved 2026-10-07: added in e2e/specs/storage.spec.ts (Step 1.6), 1.4 ticked.
+- 2026-10-19 — e2e `dashboard › @a11y the dashboard with charts` fails in dark mode (color-contrast 1.1:1: #0a0a0a text on #171717 on a recent-transaction category name, `.truncate.font-medium`). It fails identically on 96851b7 without the 4.1 changes, so it predates this step; the other 46 Chromium e2e tests pass.

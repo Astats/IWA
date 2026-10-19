@@ -92,6 +92,13 @@ Notes:
 - Sessions are memory-only: reloading or locking the app (auto-lock included) forgets every provider session. A 401 from a provider forgets the session and asks the user to connect again.
 - Tokens are sent only to the provider's API origin; pre-authenticated upload/download URLs never receive them, and a listing that points to another origin is rejected.
 
+## Native shells (Capacitor)
+
+- Android and iOS wrap the same production build (`apps/web/dist`, same CSP meta tag). Android serves it from `https://localhost` and iOS from `capacitor://localhost`, so Web Crypto and OPFS run in a secure context. Nothing is loaded from a remote server (`server.url` is unset; a unit test fails if it, cleartext or mixed content is ever enabled).
+- WebView debugging and native logging (including forwarded `console` output and Capacitor's plugin-call logs) are on in debug builds only, never in release builds.
+- The service worker is not registered on native: app updates arrive through the stores.
+- App links use the private scheme `com.astats.budget:` (the appId, RFC 8252 §7.1), registered for the main activity (Android) and in `CFBundleURLTypes` (iOS). Any app can send such a link, so links are untrusted input: `src/platform/deep-link.ts` accepts only that scheme, no credentials or port, at most 4 KB, and hands the query only to a handler registered for the exact path. Links for any other path are dropped; a link never navigates the app.
+
 ## Test builds
 
 The Playwright suite runs against `vite build --mode e2e` (output `apps/web/dist-e2e/`). That mode adds only an in-memory fake cloud provider (`apps/web/src/app/e2e-hooks.ts`, exposed as `window.__E2E_HOOKS__`) behind `import.meta.env.MODE === 'e2e'`. Production builds drop that branch; `scripts/verify-build.mjs` fails if the marker `__E2E_HOOKS__` appears in `dist/`, and ESLint forbids importing `@budget/backup/testing` anywhere else (SEC-W14).

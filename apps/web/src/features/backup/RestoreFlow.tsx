@@ -26,7 +26,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useRepositories, useServices } from '@/di';
 import { useFormatters } from '@/hooks/useFormatters';
-import { downloadFile } from '@/lib/download';
 
 import { providerErrorKey } from './provider-errors';
 
@@ -185,11 +184,14 @@ export function RestoreFlow({
             className="justify-self-start"
             onClick={() => {
               if (stage.preRestore)
-                downloadFile(
-                  backupFileName(services.now()).replace('budget-backup', 'budget-pre-restore'),
-                  stage.preRestore,
-                  BACKUP_TYPE,
-                );
+                void services.platform.saveFile({
+                  name: backupFileName(services.now()).replace(
+                    'budget-backup',
+                    'budget-pre-restore',
+                  ),
+                  content: stage.preRestore,
+                  type: BACKUP_TYPE,
+                });
             }}
           >
             <Download aria-hidden /> {t('backup.downloadPreRestore')}

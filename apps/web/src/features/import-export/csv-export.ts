@@ -1,7 +1,8 @@
 import type { Repositories, Transaction, TransactionQuery } from '@budget/core';
 import { exportTransactionsCsv } from '@budget/core/csv';
 
-import { downloadFile, timestampedName } from '@/lib/download';
+import { timestampedName } from '@/lib/download';
+import type { PlatformService } from '@/platform';
 
 const PAGE = 500;
 
@@ -18,8 +19,9 @@ export async function collectTransactions(
   }
 }
 
-/** Builds the CSV for `transactions` and downloads it. Returns the number of rows exported. */
+/** Builds the CSV for `transactions` and saves it. Returns the number of rows exported. */
 export async function downloadTransactionsCsv(
+  platform: Pick<PlatformService, 'saveFile'>,
   repos: Pick<Repositories, 'categories'>,
   transactions: Iterable<Transaction> | AsyncIterable<Transaction>,
   now: Date,
@@ -29,10 +31,10 @@ export async function downloadTransactionsCsv(
   const categories = new Map(
     (await repos.categories.list({ includeDeleted: true })).map((c) => [c.id, c]),
   );
-  downloadFile(
-    timestampedName('budget-transactions', 'csv', now),
-    exportTransactionsCsv(rows, categories),
-    'text/csv;charset=utf-8',
-  );
+  await platform.saveFile({
+    name: timestampedName('budget-transactions', 'csv', now),
+    content: exportTransactionsCsv(rows, categories),
+    type: 'text/csv;charset=utf-8',
+  });
   return rows.length;
 }

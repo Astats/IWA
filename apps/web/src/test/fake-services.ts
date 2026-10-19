@@ -5,6 +5,7 @@ import { createInMemoryRepositories, testKdfParams } from '@budget/core/testing'
 import { vi } from 'vitest';
 
 import type { AppServices, VaultResult, VaultService } from '@/di';
+import { createWebPlatform } from '@/platform';
 
 export const TEST_PASSPHRASE = 'tulip river quiet lamp 2026';
 
@@ -97,6 +98,7 @@ export function createFakeServices(
     kdfParams: testKdfParams,
     appVersion: '0.0.0-test',
     backupProviders: createProviderRegistry(options.providers ?? []),
+    platform: createWebPlatform(),
     now: () => new Date(now),
   };
 }

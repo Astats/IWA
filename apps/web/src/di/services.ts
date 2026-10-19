@@ -2,6 +2,7 @@ import type { ProviderRegistry } from '@budget/backup';
 import type { KdfParams, Repositories } from '@budget/core';
 import type { CsvParseOutcome } from '@budget/core/csv';
 
+import type { PlatformService } from '@/platform';
 import type { VaultResult, VaultStatus } from '@/storage/worker-api';
 
 export type { VaultErrorCode, VaultResult, VaultStatus } from '@/storage/worker-api';
@@ -36,6 +37,8 @@ export interface AppServices {
   appVersion: string;
   /** Cloud backup providers available in this build (BUILD_PLAN Phase 3). */
   backupProviders: ProviderRegistry;
+  /** Browser or native shell: file saving and app links (BUILD_PLAN 4.1). */
+  platform: PlatformService;
   /** Wall clock (injectable for tests). */
   now: () => Date;
 }
