@@ -181,7 +181,8 @@ describe('encrypt / decrypt (AES-256-GCM)', () => {
     }
 
     expect(ivs.size).toBe(10_000);
-  });
+    // CPU-bound: ~1 s normally, but slower under v8 coverage with all projects running in parallel.
+  }, 30_000);
 });
 
 describe('constantTimeEqual', () => {

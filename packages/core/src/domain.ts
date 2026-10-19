@@ -2,6 +2,7 @@ import './zod-config';
 
 import { z } from 'zod';
 
+import { BACKUP_FREQUENCIES } from './backup-schedule';
 import { DomainError } from './errors';
 import { isSupportedCurrency, MAX_AMOUNT_MINOR } from './money';
 
@@ -171,11 +172,26 @@ export function newTransactionWithCategorySchema(
 }
 
 // ---- Settings ----
+/** Cloud backups kept per provider (BUILD_PLAN 3.1). */
+export const DEFAULT_BACKUP_RETENTION = 10;
+export const MAX_BACKUP_RETENTION = 100;
+
 export const settingsSchema = z.object({
   baseCurrency: currencySchema,
   locale: z.string().trim().min(2).max(35),
   theme: z.enum(THEMES),
   autoLockMinutes: z.number().int().min(1).max(120),
+  // Added after backup format v1: older backups and vaults lack it, so it has a default.
+  backupRetention: z
+    .number()
+    .int()
+    .min(1)
+    .max(MAX_BACKUP_RETENTION)
+    .default(DEFAULT_BACKUP_RETENTION),
+  // Backup reminders (BUILD_PLAN 3.5); defaults keep older vaults and backups valid.
+  backupFrequency: z.enum(BACKUP_FREQUENCIES).default('weekly'),
+  /** Last successful backup on this device (cloud upload or file download), ISO 8601. */
+  lastBackupAt: z.iso.datetime({ offset: true }).nullable().default(null),
   schemaVersion: z.number().int().min(0),
 });
 export type Settings = z.infer<typeof settingsSchema>;
@@ -186,6 +202,9 @@ export const DEFAULT_SETTINGS: Settings = {
   locale: 'en',
   theme: 'system',
   autoLockMinutes: 5,
+  backupRetention: DEFAULT_BACKUP_RETENTION,
+  backupFrequency: 'weekly',
+  lastBackupAt: null,
   schemaVersion: 0,
 };
 

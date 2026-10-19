@@ -14,6 +14,9 @@ const STORAGE_KEYS = {
   locale: 'locale',
   theme: 'theme',
   autoLockMinutes: 'auto_lock_minutes',
+  backupRetention: 'backup_retention',
+  backupFrequency: 'backup_frequency',
+  lastBackupAt: 'last_backup_at',
   schemaVersion: 'schema_version',
 } as const satisfies Record<keyof Settings, string>;
 

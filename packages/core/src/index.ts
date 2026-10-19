@@ -1,3 +1,4 @@
+export * from './backup-schedule';
 export * from './dates';
 export * from './domain';
 export * from './errors';

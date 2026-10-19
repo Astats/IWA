@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { PRODUCTION_KDF_PARAMS, type Repositories } from '@budget/core';
+import { PRODUCTION_KDF_PARAMS, settingsSchema, type Repositories } from '@budget/core';
 import { createInMemoryRepositories, testKdfParams } from '@budget/core/testing';
 import {
   concat,
@@ -280,7 +280,9 @@ describe('golden backup files (backward compatibility)', () => {
     const target = createInMemoryRepositories();
     await restoreBackup(target, payload, 'replace');
 
-    expect(payload).toEqual(expected);
+    // Golden JSON is frozen at its release; settings added later appear with their defaults.
+    const golden = expected as typeof payload;
+    expect(payload).toEqual({ ...golden, settings: settingsSchema.parse(golden.settings) });
     expect((await target.transactions.list({})).total).toBe(2);
   });
 });

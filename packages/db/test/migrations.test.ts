@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import type { NewTransaction } from '@budget/core';
+import { settingsSchema, type NewTransaction } from '@budget/core';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -197,7 +197,11 @@ describe('upgrade from golden databases (one per released schema version)', () =
     expect(await currentSchemaVersion(driver)).toBe(LATEST);
     expect({ ...snapshot, settings: { ...snapshot.settings, schemaVersion: 0 } }).toEqual({
       ...(expected as typeof snapshot),
-      settings: { ...(expected as typeof snapshot).settings, schemaVersion: 0 },
+      // Golden JSON is frozen at its release; settings added later appear with their defaults.
+      settings: settingsSchema.parse({
+        ...(expected as typeof snapshot).settings,
+        schemaVersion: 0,
+      }),
     });
     await driver.close();
   });

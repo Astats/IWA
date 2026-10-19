@@ -9,9 +9,12 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e --emptyOutDir",
+    "preview:e2e": "vite preview --outDir dist-e2e"
   },
   "dependencies": {
+    "@azure/msal-browser": "5.25.0",
     "@budget/backup": "workspace:*",
     "@budget/core": "workspace:*",
     "@budget/crypto": "workspace:*",

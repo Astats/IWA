@@ -24,7 +24,13 @@ import { useFormatters } from '@/hooks/useFormatters';
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings';
 import { LOCALE_OPTIONS } from '@/i18n';
 
-const preferencesSchema = settingsSchema.omit({ schemaVersion: true });
+// Explicit pick: settings edited elsewhere (backup retention) must not be reset by this form.
+const preferencesSchema = settingsSchema.pick({
+  baseCurrency: true,
+  locale: true,
+  theme: true,
+  autoLockMinutes: true,
+});
 type Preferences = z.infer<typeof preferencesSchema>;
 
 function PreferencesForm({ settings }: { settings: Settings }) {

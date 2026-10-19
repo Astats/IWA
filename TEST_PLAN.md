@@ -401,6 +401,7 @@ IDs are referenced in commit messages and in the release checklist.
 | SEC-W15 | Clickjacking: in production behind Caddy, `frame-ancestors 'none'` is in the HTTP header (ZAP/header test); the local phase notes that a meta-tag CSP can't set it. | Phase 5 | A02 |
 | SEC-W16 | Dependency and supply-chain checks (`pnpm audit`, OSV-Scanner, lockfile integrity via `pnpm install --frozen-lockfile`) and SBOM generation succeed. | CI | A03 |
 | SEC-W17 **(M)** | Exploratory: try to break unlock, import and restore with crafted files; review DevTools storage, memory snapshot after lock, and the service worker cache contents. | Manual | ASVS |
+| SEC-W18 | Cloud provider responses are untrusted: listings are Zod-validated and anything that is not a well-formed `budget-backup-*.bgtb` entry is ignored; downloaded files pass the same fail-closed checks as local backups; provider errors are shown as generic translated messages. | Unit + component | A08, A10 |
 
 ### 6.2 Server / API (Phase 5)
 | ID | Test | Maps to |

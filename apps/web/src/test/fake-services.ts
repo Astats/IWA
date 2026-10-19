@@ -1,3 +1,4 @@
+import { createProviderRegistry, type BackupProvider } from '@budget/backup';
 import type { Repositories } from '@budget/core';
 import { parseAndValidateCsv } from '@budget/core/csv';
 import { createInMemoryRepositories, testKdfParams } from '@budget/core/testing';
@@ -86,7 +87,7 @@ export function createFakeVault(options: FakeVaultOptions = {}): FakeVault {
 }
 
 export function createFakeServices(
-  options: FakeVaultOptions & { now?: Date; route?: string } = {},
+  options: FakeVaultOptions & { now?: Date; route?: string; providers?: BackupProvider[] } = {},
 ): AppServices & { vault: FakeVault } {
   const now = options.now ?? new Date('2026-03-15T10:00:00Z');
   return {
@@ -95,6 +96,7 @@ export function createFakeServices(
     parseCsv: async (file) => parseAndValidateCsv(await file.text()),
     kdfParams: testKdfParams,
     appVersion: '0.0.0-test',
+    backupProviders: createProviderRegistry(options.providers ?? []),
     now: () => new Date(now),
   };
 }

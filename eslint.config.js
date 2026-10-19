@@ -92,12 +92,16 @@ const restrictImports = (groups, message) => ({
 });
 
 const TESTING_IMPORT = '@budget/core/testing';
+const BACKUP_TESTING_IMPORT = '@budget/backup/testing';
+/** The only production module allowed to load the fake cloud provider (e2e builds only). */
+const E2E_HOOKS_FILE = 'apps/web/src/app/e2e-hooks.ts';
 
 export default tseslint.config(
   {
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/dist-e2e/**',
       '**/coverage/**',
       '**/playwright-report/**',
       '**/test-results/**',
@@ -140,7 +144,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: [TESTING_IMPORT, `${TESTING_IMPORT}/*`],
+              group: [TESTING_IMPORT, `${TESTING_IMPORT}/*`, BACKUP_TESTING_IMPORT],
               message: 'Test builders must never be imported by production code.',
             },
           ],
@@ -206,11 +210,24 @@ export default tseslint.config(
     files: ['apps/web/src/features/**/*.{ts,tsx}', 'apps/web/src/components/**/*.{ts,tsx}'],
     ignores: TEST_FILES,
     rules: restrictImports(
-      ['@budget/db', '@budget/db/*', '@/storage', '@/storage/*', '**/storage/*', TESTING_IMPORT],
+      [
+        '@budget/db',
+        '@budget/db/*',
+        '@/storage',
+        '@/storage/*',
+        '**/storage/*',
+        TESTING_IMPORT,
+        BACKUP_TESTING_IMPORT,
+      ],
       'UI code must use repositories via @budget/core interfaces and the DI provider (@/di), never storage drivers.',
     ),
   },
   // ---- Exceptions ----
+  {
+    // Loaded only behind import.meta.env.MODE === 'e2e'; verify-build proves it never ships.
+    files: [E2E_HOOKS_FILE],
+    rules: { 'no-restricted-imports': 'off' },
+  },
   {
     files: [UI_PREFS_FILE],
     rules: {

@@ -13,11 +13,16 @@ const prefs = readUiPrefs();
 applyTheme(prefs.theme);
 initI18n(prefs.locale);
 
+// e2e builds only (vite --mode e2e): a fake cloud provider. The branch is removed from production
+// builds, and scripts/verify-build.mjs proves the hook module is absent (SEC-W14).
+const extraProviders =
+  import.meta.env.MODE === 'e2e' ? (await import('./app/e2e-hooks')).installE2eHooks() : [];
+
 const container = document.getElementById('root');
 if (!container) throw new Error('Root element missing');
 
 createRoot(container).render(
   <StrictMode>
-    <App services={createBrowserServices()} pwa={<PwaUpdater />} />
+    <App services={createBrowserServices(extraProviders)} pwa={<PwaUpdater />} />
   </StrictMode>,
 );
