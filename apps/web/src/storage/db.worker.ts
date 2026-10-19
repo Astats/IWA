@@ -1,19 +1,13 @@
 import { PRODUCTION_KDF_PARAMS, type KdfParams } from '@budget/core';
-import {
-  DecryptionError,
-  FormatError,
-  UnsupportedVersionError,
-  Vault,
-  VaultNotFoundError,
-} from '@budget/crypto';
+import { Vault } from '@budget/crypto';
 import { migrateSqlite, type SqlRow, type SqlValue } from '@budget/db';
 import { SqliteWasmDriver } from '@budget/db/sqlite-wasm';
 import { expose } from 'comlink';
 
+import { sleep, toErrorCode, unlockDelayMs } from './vault-common';
 import { openVaultStore, type FileVaultStore } from './vault-store';
 import type {
   DbWorkerApi,
-  VaultErrorCode,
   VaultResult,
   VaultStatus,
   WorkerStats,
@@ -27,27 +21,9 @@ import type {
  */
 
 const DEFAULT_DEBOUNCE_MS = 500;
-const MAX_UNLOCK_DELAY_MS = 30_000;
 
 /** Test-only overrides are compiled out of production builds (TEST_PLAN §0 rule 5). */
 const TEST_MODE = import.meta.env.MODE === 'test';
-
-function unlockDelayMs(failedAttempts: number): number {
-  return failedAttempts === 0 ? 0 : Math.min(1000 * 2 ** (failedAttempts - 1), MAX_UNLOCK_DELAY_MS);
-}
-
-function toErrorCode(err: unknown): VaultErrorCode {
-  if (err instanceof DecryptionError) return 'WRONG_PASSPHRASE';
-  if (err instanceof UnsupportedVersionError) return 'UNSUPPORTED_VERSION';
-  if (err instanceof VaultNotFoundError) return 'NO_VAULT';
-  if (err instanceof FormatError) return 'CORRUPT';
-  return 'STORAGE_FAILED';
-}
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 class DbWorker implements DbWorkerApi {
   #store: FileVaultStore | null = null;

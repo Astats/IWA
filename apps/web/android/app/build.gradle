@@ -16,6 +16,10 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    packagingOptions {
+        // SQLCipher and the plugin both ship this file (capacitor-community/sqlite README).
+        exclude 'build-data.properties'
+    }
     buildTypes {
         release {
             minifyEnabled false

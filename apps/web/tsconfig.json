@@ -8,5 +8,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "*.config.ts", "vitest.setup.ts", "csp.d.mts", "vitest.browser.config.ts"]
+  "include": [
+    "src",
+    "*.config.ts",
+    "vitest.setup.ts",
+    "csp.d.mts",
+    "vitest.browser.config.ts",
+    "native-test"
+  ]
 }

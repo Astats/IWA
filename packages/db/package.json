@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./sqlite-wasm": "./src/sqlite-wasm-driver.ts"
+    "./sqlite-wasm": "./src/sqlite-wasm-driver.ts",
+    "./native": "./src/native-driver.ts",
+    "./testing": "./src/testing/fake-plugin-connection.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

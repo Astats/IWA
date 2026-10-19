@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 import type { CapacitorConfig } from '@capacitor/cli';
 
 /**
@@ -7,9 +9,11 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.astats.budget',
   appName: 'Budget',
-  webDir: 'dist',
-  // Native logs (incl. forwarded console output) only in debug builds, never in release (SEC-M02).
-  loggingBehavior: 'debug',
+  // CAP_WEB_DIR: only scripts/native-contract.mjs points this at the instrumented test build.
+  webDir: process.env.CAP_WEB_DIR ?? 'dist',
+  // No native logging in any build (SEC-M02): in debug builds Capacitor logs every plugin call
+  // with its arguments, which would put the SQLCipher secret into logcat. Use WebView DevTools.
+  loggingBehavior: 'none',
   server: {
     // Secure context (Web Crypto, OPFS) at https://localhost; iOS keeps capacitor://localhost.
     androidScheme: 'https',
@@ -21,6 +25,19 @@ const config: CapacitorConfig = {
   },
   ios: {
     webContentsDebuggingEnabled: false,
+  },
+  plugins: {
+    // SQLCipher (BUILD_PLAN 4.2). The secret store is the Android Keystore / iOS Keychain; the
+    // native vault puts the secret there only while the app is unlocked (src/storage/native).
+    CapacitorSQLite: {
+      androidIsEncryption: true,
+      androidBiometric: { biometricAuth: false },
+      iosIsEncryption: true,
+      iosKeychainPrefix: 'com.astats.budget',
+      iosBiometric: { biometricAuth: false },
+      // Library/ is not visible in the Files app (Documents/ can be, depending on Info.plist).
+      iosDatabaseLocation: 'Library/CapacitorDatabase',
+    },
   },
 };
 

@@ -47,11 +47,33 @@ function configuredProviders(): BackupProvider[] {
   return providers;
 }
 
-/** Production services: the encrypted storage worker (AD5). */
-export function createBrowserServices(
-  platform: PlatformService,
-  extraProviders: BackupProvider[] = [],
-): AppServices {
+/**
+ * Native shells: SQLCipher through the native vault (BUILD_PLAN 4.2). The plugin code is loaded
+ * on first use, so the web bundle never contains it.
+ */
+function createNativeVaultService(): VaultService {
+  let loaded: VaultService | null = null;
+  const vault = import('@/storage/native').then((m) => (loaded = m.createNativeVault()));
+  return {
+    status: async () => (await vault).status(),
+    createVault: async (p) => (await vault).createVault(p),
+    unlock: async (p) => (await vault).unlock(p),
+    lock: async () => (await vault).lock(),
+    changePassphrase: async (o, n) => (await vault).changePassphrase(o, n),
+    verifyPassphrase: async (p) => (await vault).verifyPassphrase(p),
+    flush: async () => (await vault).flush(),
+    saveFile: async (name, bytes) => (await vault).saveFile(name, bytes),
+    readFile: async (name) => (await vault).readFile(name),
+    createRepositories: () => {
+      if (!loaded) throw new Error('The vault is locked');
+      return loaded.createRepositories();
+    },
+    requestPersistentStorage: async () => (await vault).requestPersistentStorage(),
+  };
+}
+
+/** Browser/PWA: the encrypted storage worker (AD5). */
+function createWorkerVaultService(): VaultService {
   const { api, failed } = startDbWorker();
   // Every call fails fast (instead of hanging) if the worker could not load or crashed.
   const call = <T>(p: Promise<T>): Promise<T> => Promise.race([p, failed]);
@@ -72,8 +94,16 @@ export function createBrowserServices(
       return navigator.storage.persist();
     },
   };
+  return vault;
+}
+
+/** Production services; the repository provider picks the storage by platform (BUILD_PLAN 4.2). */
+export function createBrowserServices(
+  platform: PlatformService,
+  extraProviders: BackupProvider[] = [],
+): AppServices {
   return {
-    vault,
+    vault: platform.isNative() ? createNativeVaultService() : createWorkerVaultService(),
     parseCsv: parseCsvInWorker,
     kdfParams: PRODUCTION_KDF_PARAMS,
     appVersion: __APP_VERSION__,

@@ -5,6 +5,7 @@ node_modules/
 # build output
 dist/
 dist-e2e/
+dist-native-test/
 dist-ssr/
 build/
 *.tsbuildinfo

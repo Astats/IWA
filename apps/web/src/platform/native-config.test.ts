@@ -26,7 +26,36 @@ describe('Capacitor config', () => {
   it('keeps WebView debugging and native logs out of release builds', () => {
     expect(config.android?.webContentsDebuggingEnabled).not.toBe(true);
     expect(config.ios?.webContentsDebuggingEnabled).not.toBe(true);
-    expect(config.loggingBehavior).not.toBe('production');
+    // 'debug' would log plugin-call arguments (the SQLCipher secret) to logcat.
+    expect(config.loggingBehavior).toBe('none');
+  });
+});
+
+describe('native storage (BUILD_PLAN 4.2)', () => {
+  it('turns SQLCipher on and keeps biometrics off until Step 4.3', () => {
+    const sqlite = config.plugins?.CapacitorSQLite as Record<string, unknown> | undefined;
+
+    expect(sqlite).toMatchObject({
+      androidIsEncryption: true,
+      iosIsEncryption: true,
+      androidBiometric: { biometricAuth: false },
+      iosBiometric: { biometricAuth: false },
+    });
+  });
+
+  it('keeps app data out of Android backup and device transfer', () => {
+    const manifest = read('../../android/app/src/main/AndroidManifest.xml');
+    const rules = read('../../android/app/src/main/res/xml/data_extraction_rules.xml');
+
+    expect(manifest).toContain('android:allowBackup="false"');
+    expect(manifest).toContain('android:fullBackupContent="false"');
+    expect(manifest).toContain('android:dataExtractionRules="@xml/data_extraction_rules"');
+    for (const section of ['cloud-backup', 'device-transfer']) {
+      const body = new RegExp(`<${section}>([\\s\\S]*?)</${section}>`).exec(rules)?.[1] ?? '';
+      for (const domain of ['root', 'file', 'database', 'sharedpref', 'external']) {
+        expect(body, `${section} ${domain}`).toContain(`<exclude domain="${domain}" />`);
+      }
+    }
   });
 });
 
