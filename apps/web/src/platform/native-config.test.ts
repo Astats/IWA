@@ -30,6 +30,16 @@ describe('Capacitor config', () => {
   });
 });
 
+describe('Android manifest', () => {
+  it('exports only the launcher activity (SEC-M06)', () => {
+    const manifest = read('../../android/app/src/main/AndroidManifest.xml');
+    const exported = [...manifest.matchAll(/<(\w+)\b[^>]*android:exported="true"[^>]*>/g)];
+
+    expect(exported.map((m) => m[1])).toEqual(['activity']);
+    expect(exported[0]?.[0]).toContain('android:name=".MainActivity"');
+  });
+});
+
 describe('app link registration', () => {
   it('is the scheme of the appId', () => {
     expect(APP_URL_SCHEME).toBe(config.appId);
