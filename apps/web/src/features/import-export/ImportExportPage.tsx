@@ -24,6 +24,7 @@ export function ImportExportPage() {
     setStatus(null);
     try {
       const count = await downloadTransactionsCsv(
+        services.platform,
         repos,
         repos.transactions.exportAll(),
         services.now(),

@@ -1,5 +1,6 @@
 import type { VaultSlot, VaultStore } from '@budget/crypto';
 
+import { assertSafeName } from './vault-common';
 import type { StorageKind } from './worker-api';
 
 /** Vault slots plus named side files (e.g. the pre-restore backup). Only ciphertext is stored. */
@@ -10,11 +11,6 @@ export interface FileVaultStore extends VaultStore {
 }
 
 const slotFile = (slot: VaultSlot) => `budget-${slot}.vault`;
-const SAFE_NAME = /^[a-z0-9][a-z0-9._-]{0,63}$/i;
-
-function assertSafeName(name: string): void {
-  if (!SAFE_NAME.test(name)) throw new Error('Invalid file name');
-}
 
 /** Minimal typing for OPFS sync access handles (only declared in the webworker lib). */
 interface SyncAccessHandle {

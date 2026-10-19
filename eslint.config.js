@@ -14,6 +14,7 @@ const TEST_FILES = [
   '**/src/testing/**/*.{ts,tsx}',
   'e2e/**/*.{ts,tsx}',
   'tooling/**/*.{ts,tsx}',
+  'apps/web/native-test/**/*.{ts,tsx}',
   '**/vitest.setup.ts',
 ];
 
@@ -93,6 +94,7 @@ const restrictImports = (groups, message) => ({
 
 const TESTING_IMPORT = '@budget/core/testing';
 const BACKUP_TESTING_IMPORT = '@budget/backup/testing';
+const DB_TESTING_IMPORT = '@budget/db/testing';
 /** The only production module allowed to load the fake cloud provider (e2e builds only). */
 const E2E_HOOKS_FILE = 'apps/web/src/app/e2e-hooks.ts';
 
@@ -102,6 +104,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/dist/**',
       '**/dist-e2e/**',
+      '**/dist-native-test/**',
       '**/coverage/**',
       '**/playwright-report/**',
       '**/test-results/**',
@@ -144,7 +147,12 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: [TESTING_IMPORT, `${TESTING_IMPORT}/*`, BACKUP_TESTING_IMPORT],
+              group: [
+                TESTING_IMPORT,
+                `${TESTING_IMPORT}/*`,
+                BACKUP_TESTING_IMPORT,
+                DB_TESTING_IMPORT,
+              ],
               message: 'Test builders must never be imported by production code.',
             },
           ],

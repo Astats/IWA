@@ -6,3 +6,7 @@
 *.sqlite binary
 # Fixtures must keep their exact bytes (BOM, CRLF, encodings).
 test-data/** binary
+# Windows batch files (gradlew.bat) need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.jar binary

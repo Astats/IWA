@@ -1,0 +1,9 @@
+# OSV-Scanner exceptions (CI job "OSV-Scanner"). Each entry needs a reason and an expiry date.
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+# braces <= 3.0.3: stack exhaustion on deeply nested brace patterns. No patched release exists.
+# Dev-only: reached through the shadcn CLI (fast-glob → micromatch), which expands globs
+# written in this repository, never untrusted input. Nothing in the shipped app uses braces.
+ignoreUntil = 2027-01-19
+reason = "Dev-only (shadcn CLI globbing of repository paths); no fixed version yet"

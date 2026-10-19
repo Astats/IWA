@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useRepositories, useServices } from '@/di';
 import { useRecordBackup } from '@/hooks/useBackupReminder';
-import { downloadFile } from '@/lib/download';
 
 import { BackupStatus } from './BackupReminder';
 import { CloudBackup } from './CloudBackup';
@@ -40,7 +39,11 @@ function DownloadBackup() {
         appVersion: services.appVersion,
         now: services.now,
       });
-      downloadFile(backupFileName(services.now()), bytes, BACKUP_TYPE);
+      await services.platform.saveFile({
+        name: backupFileName(services.now()),
+        content: bytes,
+        type: BACKUP_TYPE,
+      });
       await recordBackup();
       setPassphrase('');
       setMessage({ ok: true, text: t('backup.downloaded') });

@@ -3,6 +3,7 @@ BUILD_PLAN.md
 TEST_PLAN.md
 **/dist/
 **/dist-e2e/
+**/dist-native-test/
 **/coverage/
 **/playwright-report/
 **/test-results/

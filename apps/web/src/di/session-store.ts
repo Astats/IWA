@@ -1,6 +1,8 @@
 import type { Repositories, Settings } from '@budget/core';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 
+import type { StorageKind } from '@/storage/worker-api';
+
 import type { VaultResult, VaultService } from './services';
 
 export type SessionStatus = 'checking' | 'no-vault' | 'locked' | 'unlocked' | 'error';
@@ -8,7 +10,7 @@ export type SessionStatus = 'checking' | 'no-vault' | 'locked' | 'unlocked' | 'e
 export interface SessionState {
   status: SessionStatus;
   repos: Repositories | null;
-  storage: 'opfs' | 'indexeddb' | null;
+  storage: StorageKind | null;
   /** False when the browser denied persistent storage (show a warning banner). */
   storagePersisted: boolean | null;
   /** Re-reads vault state from the storage worker. */

@@ -1,6 +1,6 @@
 # Budget App
 
-A local-first, encrypted personal budget app. It runs fully offline as a web PWA (Android and iOS via Capacitor come later), keeps all data encrypted at rest, and supports CSV import/export and encrypted backups.
+A local-first, encrypted personal budget app. It runs fully offline as a web PWA and as Android/iOS apps (Capacitor), keeps all data encrypted at rest, and supports CSV import/export and encrypted backups.
 
 See [BUILD_PLAN.md](BUILD_PLAN.md) for the roadmap and [TEST_PLAN.md](TEST_PLAN.md) for the test strategy. Security design and how to report vulnerabilities: [SECURITY.md](SECURITY.md).
 
@@ -30,6 +30,18 @@ pnpm dev          # web app at http://localhost:5173
 | `pnpm test:e2e`                     | Playwright end-to-end tests against the production build   |
 | `pnpm format` / `pnpm format:check` | Prettier                                                   |
 
+## Mobile (Capacitor)
+
+The native projects live in `apps/web/android` and `apps/web/ios` (appId `com.astats.budget`). Requirements: Android Studio with an Android SDK, and **JDK 21 or newer** for Gradle (Capacitor 8 compiles Java 21; Gradle 8.14 runs on JDK 21–24). iOS builds need a Mac with Xcode.
+
+```bash
+pnpm --filter web build
+cd apps/web && npx cap sync    # copy dist/ into the native projects
+npx cap open android           # or: cd android && ./gradlew assembleDebug
+```
+
+`node scripts/native-contract.mjs` (in `apps/web`, emulator running) runs the repository contract suite against the native SQLCipher driver on the device. It uninstalls the app first, so the app's data on that device is lost.
+
 ## Repository layout
 
 ```
@@ -37,7 +49,7 @@ packages/core     domain types, Zod schemas, money, repository interfaces, CSV (
 packages/crypto   key derivation, envelope encryption, vault file format
 packages/db       SQLite schema/migrations, SqlDriver, repository implementations
 packages/backup   encrypted backup file format
-apps/web          React + Vite PWA
+apps/web          React + Vite PWA; Capacitor projects in android/ and ios/
 e2e/              Playwright tests
 test-data/        static CSV/backup fixtures
 ```

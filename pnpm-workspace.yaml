@@ -5,3 +5,20 @@ packages:
 # Packages allowed to run install scripts (supply-chain policy: deny by default).
 allowBuilds:
   esbuild: true
+
+# Supply-chain hardening (Semgrep pnpm rules, TEST_PLAN §6).
+# Only versions published at least 7 days ago are resolved.
+minimumReleaseAge: 10080
+# Transitive dependencies may not come from git URLs or tarballs.
+blockExoticSubdeps: true
+# Fail when a package version has weaker publish trust evidence than earlier ones.
+trustPolicy: no-downgrade
+# Takeovers show up as new publishes; versions older than 30 days are not re-checked (old releases
+# predate npm provenance, e.g. semver@6.3.1, and would fail as a "downgrade").
+trustPolicyIgnoreAfter: 43200
+
+overrides:
+  # GHSA-w5hq-g745-h8pq: @capacitor/cli → xcode pins uuid 7 (xcode only calls v4, which is unaffected).
+  'xcode>uuid': 11.1.1
+  # GHSA-67mh-4wv8-2f99: drizzle-kit's loader pins esbuild 0.18 (its dev server is never started).
+  '@esbuild-kit/core-utils>esbuild': 0.25.12

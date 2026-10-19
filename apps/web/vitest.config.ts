@@ -12,7 +12,7 @@ export default defineProject({
   test: {
     name: 'web-unit',
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'native-test/**/*.test.ts'],
     exclude: ['src/**/*.browser.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
   },
