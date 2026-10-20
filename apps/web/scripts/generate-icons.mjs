@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Generates the app icons and splash screens (PNG) without extra dependencies: a teal rounded
 // square with three white "ledger lines", matching public/favicon.svg. Writes the PWA icons to
-// public/ and the Android/iOS launcher icons and splash screens (BUILD_PLAN 4.4).
+// public/ and the Android launcher icons and splash screens (BUILD_PLAN 4.4).
 // Usage: node scripts/generate-icons.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -129,15 +129,8 @@ const files = {
   'public/pwa-512x512.png': icon(512),
   'public/maskable-512x512.png': icon(512, { shape: 'square', scale: 0.7 }),
   'public/apple-touch-icon.png': icon(180, { shape: 'square', scale: 0.7 }),
-  // iOS masks the corners itself; App Store icons must be opaque.
-  'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png': icon(1024, {
-    shape: 'square',
-  }),
   [`${res}/drawable/splash.png`]: splash(480, 320),
 };
-for (const name of ['splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-2732x2732-2.png']) {
-  files[`ios/App/App/Assets.xcassets/Splash.imageset/${name}`] ??= splash(2732, 2732);
-}
 for (const [density, factor] of Object.entries(DENSITIES)) {
   files[`${res}/mipmap-${density}/ic_launcher.png`] = icon(48 * factor);
   files[`${res}/mipmap-${density}/ic_launcher_round.png`] = icon(48 * factor, {

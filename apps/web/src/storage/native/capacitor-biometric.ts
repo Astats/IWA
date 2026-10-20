@@ -30,8 +30,7 @@ export function toBiometricKeyError(err: unknown): BiometricKeyError {
 /**
  * `@capgo/capacitor-native-biometric` behind the vault's biometric port. Values are stored with
  * BIOMETRY_CURRENT_SET and no validity window: on Android an RSA Keystore key that needs a strong
- * biometric for every decryption (BiometricPrompt with a CryptoObject); on iOS a Keychain item
- * with biometric access control. Enrolling a new fingerprint or face invalidates it.
+ * biometric for every decryption (BiometricPrompt with a CryptoObject). Enrolling a new fingerprint or face invalidates it.
  */
 export function createCapacitorBiometricPort(): BiometricKeyPort {
   return {

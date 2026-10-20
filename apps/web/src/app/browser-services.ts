@@ -19,16 +19,15 @@ import type { PlatformService } from '@/platform';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
 
 /**
- * Android/iOS: sign-in through the system browser and a deep link (BUILD_PLAN 4.3). Popups,
+ * Android: sign-in through the system browser and a deep link (BUILD_PLAN 4.3). Popups,
  * MSAL and Google's GIS library do not work in the WebView.
  */
 function nativeProviders(platform: PlatformService): BackupProvider[] {
   if (!hasAuthBrowser(platform)) return [];
   const env = import.meta.env;
-  const configs = nativeOAuthConfigs(platform, {
+  const configs = nativeOAuthConfigs({
     microsoft: env.VITE_MS_CLIENT_ID,
     googleAndroid: env.VITE_GOOGLE_ANDROID_CLIENT_ID,
-    googleIos: env.VITE_GOOGLE_IOS_CLIENT_ID,
     dropbox: env.VITE_DROPBOX_APP_KEY,
   });
   const deps = { platform, browser: platform.authBrowser, postForm: nativePostForm };

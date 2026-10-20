@@ -3,11 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DeepLinkRouter } from '@/platform';
 
-import { createNativeOAuthSession, redirectTarget, type NativeOAuthConfig } from './native-oauth';
+import { createNativeOAuthSession, redirectPath, type NativeOAuthConfig } from './native-oauth';
 import {
   DROPBOX_NATIVE_REDIRECT,
   GOOGLE_ANDROID_REDIRECT,
-  googleIosRedirect,
   MICROSOFT_NATIVE_REDIRECT,
   nativeOAuthConfigs,
 } from './native-providers';
@@ -62,7 +61,7 @@ function setup(overrides: Partial<NativeOAuthConfig> = {}) {
   const session = createNativeOAuthSession(
     { ...config, ...overrides },
     {
-      platform: { onDeepLink: (path, h, scheme) => router.on(path, h, scheme), away },
+      platform: { onDeepLink: (path, h) => router.on(path, h), away },
       browser,
       postForm,
       now: () => now,
@@ -283,36 +282,20 @@ describe('native OAuth sign-in (SEC-M05)', () => {
 });
 
 describe('native provider configuration', () => {
-  it('registers redirects on the app scheme (Google iOS: reversed client id)', () => {
-    expect(redirectTarget(MICROSOFT_NATIVE_REDIRECT)).toEqual({
-      scheme: 'com.astats.budget',
-      path: '/auth/callback/microsoft',
-    });
-    expect(redirectTarget(DROPBOX_NATIVE_REDIRECT).path).toBe('/auth/callback/dropbox');
-    expect(redirectTarget(GOOGLE_ANDROID_REDIRECT)).toEqual({
-      scheme: 'com.astats.budget',
-      path: '/oauth2redirect',
-    });
-    expect(googleIosRedirect('123-abc.apps.googleusercontent.com')).toBe(
-      'com.googleusercontent.apps.123-abc:/oauth2redirect',
-    );
-    expect(() => redirectTarget('not a uri')).toThrow();
+  it('registers every redirect on the app scheme', () => {
+    expect(redirectPath(MICROSOFT_NATIVE_REDIRECT)).toBe('/auth/callback/microsoft');
+    expect(redirectPath(DROPBOX_NATIVE_REDIRECT)).toBe('/auth/callback/dropbox');
+    expect(redirectPath(GOOGLE_ANDROID_REDIRECT)).toBe('/oauth2redirect');
+    expect(() => redirectPath('com.googleusercontent.apps.1:/oauth2redirect')).toThrow();
+    expect(() => redirectPath('not a uri')).toThrow();
   });
 
-  it('configures only providers with a client id, and Google per platform', () => {
-    const ids = {
-      microsoft: 'ms',
-      googleAndroid: 'ga',
-      googleIos: 'gi.apps.googleusercontent.com',
-    };
-
-    const android = nativeOAuthConfigs({ id: 'android' }, ids);
-    const ios = nativeOAuthConfigs({ id: 'ios' }, ids);
+  it('configures only providers with a client id', () => {
+    const android = nativeOAuthConfigs({ microsoft: 'ms', googleAndroid: 'ga' });
 
     expect(Object.keys(android)).toEqual(['onedrive', 'gdrive']);
-    expect(android.gdrive?.clientId).toBe('ga');
-    expect(ios.gdrive?.redirectUri).toBe('com.googleusercontent.apps.gi:/oauth2redirect');
-    expect(nativeOAuthConfigs({ id: 'android' }, { dropbox: 'db' }).dropbox).toMatchObject({
+    expect(android.gdrive).toMatchObject({ clientId: 'ga', redirectUri: GOOGLE_ANDROID_REDIRECT });
+    expect(nativeOAuthConfigs({ dropbox: 'db' }).dropbox).toMatchObject({
       extraParams: { token_access_type: 'online' },
       redirectUri: 'com.astats.budget://auth/callback/dropbox',
     });

@@ -57,7 +57,7 @@ Rough proportion by count: ~70% unit, ~20% component + integration, ~10% e2e.
 | L4 E2E web | Playwright Test | Chromium, Firefox, WebKit + mobile viewports | User journeys on the built app (`vite preview`) | PR (Chromium, sharded), nightly (matrix) |
 | L5 Non-functional | axe-core, Lighthouse CI, size-limit, Playwright perf marks, `toHaveScreenshot` | Browser | Accessibility, performance budgets, bundle size, visual regression | PR (a11y, size), nightly (rest) |
 | L6 Security | Section 6 test cases, ZAP, fast-check fuzzing, Trivy, OSV-Scanner, MobSF | Mixed | OWASP ASVS / MASVS verification | PR + nightly + release |
-| L7 Mobile | WebdriverIO + Appium (Android emulator), MobSF | Android emulator; iOS manual | Native storage, lock, share, OAuth deep link | nightly + release (Phase 4) |
+| L7 Mobile | WebdriverIO + Appium (Android emulator), MobSF | Android emulator + physical device | Native storage, lock, share, OAuth deep link | nightly + release (Phase 4) |
 | L8 Mutation | StrykerJS | Node | Test-suite quality for `core`, `crypto`, CSV, backup | nightly / weekly |
 | L9 Manual | Checklists in section 8 | Real devices | Exploratory, UAT, MASVS manual items | each milestone |
 
@@ -426,11 +426,11 @@ IDs are referenced in commit messages and in the release checklist.
 |---|---|---|
 | SEC-M01 | DB file pulled from the emulator (`adb`) is not readable by `sqlite3` (SQLCipher active) | STORAGE |
 | SEC-M02 | No sensitive data in app logs (`adb logcat` scan during the mobile smoke run) | STORAGE |
-| SEC-M03 | Keys are in Keystore/Keychain. Shared preferences contain no secrets. | CRYPTO, STORAGE |
+| SEC-M03 | Keys are in the Android Keystore. Shared preferences contain no secrets. | CRYPTO, STORAGE |
 | SEC-M04 | App locks on background; biometric fallback to passphrase; `FLAG_SECURE` set (screenshot attempt returns blank) | AUTH, PLATFORM |
 | SEC-M05 | OAuth through the system browser (Custom Tabs / ASWebAuthenticationSession) with PKCE and `state`; deep link from a non-matching `state` is rejected | AUTH, PLATFORM |
-| SEC-M06 | `usesCleartextTraffic=false`, iOS ATS defaults, no exported components except the launcher and the deep-link activity | NETWORK, PLATFORM |
-| SEC-M07 | **MobSF** static scan of the release APK/IPA: no High findings left untriaged | CODE, RESILIENCE |
+| SEC-M06 | `usesCleartextTraffic=false`, no exported components except the launcher and the deep-link activity | NETWORK, PLATFORM |
+| SEC-M07 | **MobSF** static scan of the release APK: no High findings left untriaged | CODE, RESILIENCE |
 | SEC-M08 | Release build: WebView debugging disabled, no source maps shipped, minified | CODE |
 | SEC-M09 **(M)** | MASTG manual checks on a physical device (backup extraction with `adb backup` / iTunes, clipboard, app switcher snapshot) | All |
 
@@ -496,7 +496,7 @@ Record results in `docs/test-reports/<milestone>.md` (date, tester, build/commit
 - [ ] Verify in each provider's web UI that the file is in the app folder only and its content is ciphertext
 
 ### 8.3 M4 — Mobile
-- [ ] Android physical device + emulator; iOS simulator + physical device (on a Mac)
+- [ ] Android physical device + emulator (a native iOS app is out of scope; iPhones use the PWA, covered by the WebKit / mobile-safari projects)
 - [ ] Install, onboarding, biometric unlock, background lock, share/export CSV, import from Files app, OAuth deep links
 - [ ] App upgrade from the previous version keeps data (install the old APK → add data → install the new APK)
 - [ ] SEC-M09 MASTG manual checks

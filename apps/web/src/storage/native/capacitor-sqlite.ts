@@ -2,7 +2,7 @@ import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 
 import type { NativeSqlitePort } from './native-vault';
 
-/** `@capacitor-community/sqlite` behind the native vault's port (Android/iOS only). */
+/** `@capacitor-community/sqlite` behind the native vault's port (Android only). */
 export function createCapacitorSqlitePort(): NativeSqlitePort {
   const sqlite = new SQLiteConnection(CapacitorSQLite);
   // Setting or clearing the secret closes every database natively, but the JS side keeps its

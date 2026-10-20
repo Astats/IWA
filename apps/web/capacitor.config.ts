@@ -3,7 +3,7 @@ import process from 'node:process';
 import type { CapacitorConfig } from '@capacitor/cli';
 
 /**
- * Native shells for Android and iOS (BUILD_PLAN 4.1, AD2). The WebView loads the built PWA from
+ * Native shell for Android (BUILD_PLAN 4.1, AD2). The WebView loads the built PWA from
  * `dist/`; nothing is fetched from a remote server.
  */
 const config: CapacitorConfig = {
@@ -15,7 +15,7 @@ const config: CapacitorConfig = {
   // with its arguments, which would put the SQLCipher secret into logcat. Use WebView DevTools.
   loggingBehavior: 'none',
   server: {
-    // Secure context (Web Crypto, OPFS) at https://localhost; iOS keeps capacitor://localhost.
+    // Secure context (Web Crypto, OPFS) at https://localhost.
     androidScheme: 'https',
   },
   android: {
@@ -23,20 +23,12 @@ const config: CapacitorConfig = {
     webContentsDebuggingEnabled: false,
     allowMixedContent: false,
   },
-  ios: {
-    webContentsDebuggingEnabled: false,
-  },
   plugins: {
-    // SQLCipher (BUILD_PLAN 4.2). The secret store is the Android Keystore / iOS Keychain; the
+    // SQLCipher (BUILD_PLAN 4.2). The secret store is backed by the Android Keystore; the
     // native vault puts the secret there only while the app is unlocked (src/storage/native).
     CapacitorSQLite: {
       androidIsEncryption: true,
       androidBiometric: { biometricAuth: false },
-      iosIsEncryption: true,
-      iosKeychainPrefix: 'com.astats.budget',
-      iosBiometric: { biometricAuth: false },
-      // Library/ is not visible in the Files app (Documents/ can be, depending on Info.plist).
-      iosDatabaseLocation: 'Library/CapacitorDatabase',
     },
   },
 };

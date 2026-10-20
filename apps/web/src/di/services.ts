@@ -48,7 +48,7 @@ export type BiometricErrorCode =
 export type BiometricResult = { ok: true } | { ok: false; error: BiometricErrorCode };
 
 /**
- * Biometric unlock keeps a copy of the vault key wrapped by a Keystore/Keychain key that only a
+ * Biometric unlock keeps a copy of the vault key wrapped by an Android Keystore key that only a
  * successful strong-biometric check releases. The passphrase always works as well.
  */
 export interface BiometricUnlock {

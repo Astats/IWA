@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
@@ -8,6 +8,9 @@ import { describe, expect, it } from 'vitest';
 import config from '../../capacitor.config';
 
 import { APP_URL_SCHEME } from './deep-link';
+
+/** Through a constant: Vite rewrites `new URL('<literal>', import.meta.url)` into an asset URL. */
+const IOS_PROJECT = '../../ios';
 
 const read = (relative: string) =>
   readFileSync(new URL(relative, import.meta.url), { encoding: 'utf8' });
@@ -26,9 +29,16 @@ describe('Capacitor config', () => {
     expect(config.android?.allowMixedContent).not.toBe(true);
   });
 
+  it('targets Android only (iOS is out of scope)', () => {
+    const sqlite = config.plugins?.CapacitorSQLite as Record<string, unknown> | undefined;
+
+    expect(config.ios).toBeUndefined();
+    expect(Object.keys(sqlite ?? {}).filter((k) => k.startsWith('ios'))).toEqual([]);
+    expect(existsSync(new URL(IOS_PROJECT, import.meta.url))).toBe(false);
+  });
+
   it('keeps WebView debugging and native logs out of release builds', () => {
     expect(config.android?.webContentsDebuggingEnabled).not.toBe(true);
-    expect(config.ios?.webContentsDebuggingEnabled).not.toBe(true);
     // 'debug' would log plugin-call arguments (the SQLCipher secret) to logcat.
     expect(config.loggingBehavior).toBe('none');
   });
@@ -41,9 +51,7 @@ describe('native storage (BUILD_PLAN 4.2)', () => {
 
     expect(sqlite).toMatchObject({
       androidIsEncryption: true,
-      iosIsEncryption: true,
       androidBiometric: { biometricAuth: false },
-      iosBiometric: { biometricAuth: false },
     });
   });
 
@@ -90,21 +98,6 @@ describe('app link registration', () => {
     expect(viewFilters[0]).toContain(`android:scheme="${APP_URL_SCHEME}"`);
     expect(viewFilters[0]).not.toContain('android:host');
   });
-
-  it('is in the iOS Info.plist URL types', () => {
-    const plist = read('../../ios/App/App/Info.plist');
-    const urlTypes = /<key>CFBundleURLSchemes<\/key>\s*<array>([\s\S]*?)<\/array>/.exec(plist);
-
-    const schemes = [...(urlTypes?.[1] ?? '').matchAll(/<string>([^<]*)<\/string>/g)].map(
-      (m) => m[1],
-    );
-
-    expect(schemes).toContain(APP_URL_SCHEME);
-    // Besides the app's own scheme, only Google's reversed iOS client id (native sign-in).
-    for (const scheme of schemes.filter((s) => s !== APP_URL_SCHEME)) {
-      expect(scheme).toMatch(/^com\.googleusercontent\.apps\.[\w-]+$/);
-    }
-  });
 });
 
 describe('screen privacy (SEC-M04)', () => {
@@ -114,14 +107,6 @@ describe('screen privacy (SEC-M04)', () => {
     expect(activity).toMatch(
       /getWindow\(\)\.setFlags\(\s*WindowManager\.LayoutParams\.FLAG_SECURE,/,
     );
-  });
-
-  it('covers the iOS window before the app switcher snapshot', () => {
-    const scene = read('../../ios/App/App/SceneDelegate.swift');
-
-    expect(scene).toContain('func sceneWillResignActive');
-    expect(scene).toContain('window.addSubview(cover)');
-    expect(scene).toContain('func sceneDidBecomeActive');
   });
 });
 

@@ -49,11 +49,11 @@ function toRow(raw: unknown): SqlRow {
 }
 
 /**
- * SqlDriver over a native SQLite connection (Android/iOS, SQLCipher; BUILD_PLAN 4.2, AD6). The
+ * SqlDriver over a native SQLite connection (Android, SQLCipher; BUILD_PLAN 4.2, AD6). The
  * database lives on the device, so writes are durable on commit and nothing is exported.
  *
  * Positional rows (Drizzle's `values`) follow the column order of the plugin's row objects:
- * Android keeps insertion order and the plugin reorders iOS rows by `ios_columns`. Queries must
+ * Android keeps insertion order. Queries must
  * not return duplicate or integer-like column names (none of this app's queries do).
  */
 export class NativeSqlDriver implements SqlDriver {

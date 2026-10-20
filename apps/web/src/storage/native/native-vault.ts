@@ -33,7 +33,7 @@ export interface NativeDatabase {
  */
 export interface NativeSqlitePort {
   /**
-   * The plugin's secure store (Android Keystore / iOS Keychain) holds one SQLCipher secret.
+   * The plugin's secure store (backed by the Android Keystore) holds one SQLCipher secret.
    * `setSecret` and `clearSecret` close every open database, like the plugin does.
    */
   isSecretStored(): Promise<boolean>;
@@ -52,9 +52,8 @@ export class BiometricKeyError extends Error {
 }
 
 /**
- * A key store whose entry only a successful strong-biometric check releases (Android Keystore
- * key bound to BiometricPrompt via CryptoObject; iOS Keychain item with biometric access
- * control). Invalidated when the enrolled biometrics change.
+ * A key store whose entry only a successful strong-biometric check releases (an Android Keystore
+ * key bound to BiometricPrompt via CryptoObject). Invalidated when the enrolled biometrics change.
  */
 export interface BiometricKeyPort {
   isAvailable(): Promise<boolean>;
@@ -146,10 +145,10 @@ interface Session {
 }
 
 /**
- * Encrypted storage on Android/iOS (BUILD_PLAN 4.2, AD6). The ledger is a SQLCipher database
+ * Encrypted storage on Android (BUILD_PLAN 4.2, AD6). The ledger is a SQLCipher database
  * whose 256-bit secret is generated once at random. At rest the secret exists only inside a
  * passphrase vault (Argon2id + AES-GCM, the same format as the web vault). Unlocking unwraps it
- * and hands it to the plugin's Keystore/Keychain-backed secure store, which SQLCipher reads from
+ * and hands it to the plugin's Keystore-backed secure store, which SQLCipher reads from
  * when the database opens; locking closes the database and clears the secret from that store.
  */
 export class NativeVault implements VaultService {
@@ -408,7 +407,7 @@ export class NativeVault implements VaultService {
     return createSqliteRepositories(this.#session.driver);
   }
 
-  /** App data on Android/iOS is not evicted like browser storage. */
+  /** App data on Android is not evicted like browser storage. */
   requestPersistentStorage(): Promise<boolean> {
     return Promise.resolve(true);
   }

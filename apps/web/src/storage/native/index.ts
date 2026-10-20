@@ -4,7 +4,7 @@ import { NativeVault } from './native-vault';
 
 export { NativeVault } from './native-vault';
 
-/** The vault for the Android/iOS shells (loaded on demand: never part of the web bundle). */
+/** The vault for the Android shell (loaded on demand: never part of the web bundle). */
 export function createNativeVault(): NativeVault {
   return new NativeVault(createCapacitorSqlitePort(), {
     biometrics: createCapacitorBiometricPort(),

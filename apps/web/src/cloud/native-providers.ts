@@ -9,7 +9,7 @@ import type { NativeOAuthConfig } from './native-oauth';
  * Native OAuth clients (BUILD_PLAN 4.3). Each needs a redirect URI registered with the provider
  * (🧑 HUMAN, see docs/mobile-release.md):
  * - Microsoft: the same Entra app, platform "Mobile and desktop applications".
- * - Google: separate Android and iOS OAuth clients (Android: "custom URI scheme" enabled).
+ * - Google: a separate OAuth client of type Android ("custom URI scheme" enabled).
  * - Dropbox: the same app key with the custom-scheme redirect URI added.
  */
 
@@ -18,16 +18,9 @@ export const DROPBOX_NATIVE_REDIRECT = `${APP_URL_SCHEME}://auth/callback/dropbo
 /** Google Android clients redirect on the package name as scheme. */
 export const GOOGLE_ANDROID_REDIRECT = `${APP_URL_SCHEME}:/oauth2redirect`;
 
-/** Google iOS clients redirect on the reversed client id (it must be in Info.plist URL types). */
-export function googleIosRedirect(clientId: string): string {
-  const id = clientId.replace(/\.apps\.googleusercontent\.com$/, '');
-  return `com.googleusercontent.apps.${id}:/oauth2redirect`;
-}
-
 export interface NativeClientIds {
   microsoft?: string | undefined;
   googleAndroid?: string | undefined;
-  googleIos?: string | undefined;
   dropbox?: string | undefined;
 }
 
@@ -35,7 +28,6 @@ export type NativeProviderId = 'onedrive' | 'gdrive' | 'dropbox';
 
 /** OAuth configurations for the providers whose native client ids are configured. */
 export function nativeOAuthConfigs(
-  platform: Pick<PlatformService, 'id'>,
   ids: NativeClientIds,
 ): Partial<Record<NativeProviderId, NativeOAuthConfig>> {
   const configs: Partial<Record<NativeProviderId, NativeOAuthConfig>> = {};
@@ -51,13 +43,12 @@ export function nativeOAuthConfigs(
       normalizeScope: (s) => s.replace(/^https:\/\/graph\.microsoft\.com\//i, ''),
     };
   }
-  const googleId = platform.id === 'ios' ? ids.googleIos : ids.googleAndroid;
-  if (googleId) {
+  if (ids.googleAndroid) {
     configs.gdrive = {
       authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenUrl: 'https://oauth2.googleapis.com/token',
-      clientId: googleId,
-      redirectUri: platform.id === 'ios' ? googleIosRedirect(googleId) : GOOGLE_ANDROID_REDIRECT,
+      clientId: ids.googleAndroid,
+      redirectUri: GOOGLE_ANDROID_REDIRECT,
       scopes: GDRIVE_SCOPES,
     };
   }

@@ -45,7 +45,7 @@ async function shareFile({ name, content }: SaveFileRequest): Promise<void> {
 
 const authBrowser: AuthBrowser = {
   open: (url) => Browser.open({ url }),
-  close: () => Browser.close().catch(() => undefined), // Android: nothing to close
+  close: () => Browser.close().catch(() => undefined), // Android returns on the redirect
   // Android does not report every way out of the browser (e.g. Chrome's first-run screen is not a
   // Custom Tab), so returning to the app counts as closing it too; a redirect that brings the
   // app back still wins within the sign-in's grace period.
@@ -61,11 +61,11 @@ const authBrowser: AuthBrowser = {
 };
 
 /**
- * The Capacitor shells. App links arrive through `appUrlOpen` and go to the deep-link router;
+ * The Capacitor shell (Android). App links arrive through `appUrlOpen` and go to the deep-link router;
  * links that arrive while no handler waits for them (e.g. a cold start) are dropped. Going to
  * the background locks the app (BUILD_PLAN 4.3) and deletes shared export files.
  */
-export function createNativePlatform(id: 'android' | 'ios'): PlatformService {
+export function createNativePlatform(): PlatformService {
   const router = new DeepLinkRouter();
   const background = new BackgroundLock();
   void App.addListener('appUrlOpen', ({ url }) => {
@@ -81,10 +81,10 @@ export function createNativePlatform(id: 'android' | 'ios'): PlatformService {
   void clearExports(); // left over from a previous run
 
   return {
-    id,
+    id: 'android',
     isNative: () => true,
     saveFile: (file) => background.away(() => shareFile(file)),
-    onDeepLink: (path, handler, scheme) => router.on(path, handler, scheme),
+    onDeepLink: (path, handler) => router.on(path, handler),
     onBackground: (handler) => background.onLock(handler),
     away: (task) => background.away(task),
     authBrowser,

@@ -8,11 +8,11 @@ export * from './deep-link';
 export * from './platform';
 export { createWebPlatform } from './web-platform';
 
-/** The platform the app runs on: a Capacitor shell (Android/iOS) or the browser. */
+/** The platform the app runs on: the Capacitor shell (Android) or the browser. */
 export function createPlatform(): PlatformService {
   const id = Capacitor.getPlatform();
-  if (Capacitor.isNativePlatform() && (id === 'android' || id === 'ios')) {
-    return createNativePlatform(id);
+  if (Capacitor.isNativePlatform() && id === 'android') {
+    return createNativePlatform();
   }
   return createWebPlatform();
 }

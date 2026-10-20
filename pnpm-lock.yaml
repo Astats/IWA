@@ -260,9 +260,6 @@ importers:
       '@capacitor/filesystem':
         specifier: 8.1.4
         version: 8.1.4(@capacitor/core@8.5.3)
-      '@capacitor/ios':
-        specifier: 8.5.3
-        version: 8.5.3(@capacitor/core@8.5.3)
       '@capacitor/share':
         specifier: 8.0.3
         version: 8.0.3(@capacitor/core@8.5.3)
@@ -1075,11 +1072,6 @@ packages:
     resolution: {integrity: sha512-8MXmt10cb+dGWoh8jUeO8on0U6iETQCX5k+fmdB278PZ3MYDEVGQo08+hroaOtUbK3+5stiRk4/K6QBHKepv0A==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
-
-  '@capacitor/ios@8.5.3':
-    resolution: {integrity: sha512-HnnV92Jl8+3x0JUloXUMjFcUsQI8wHFVsKwkLn72DfRZXYGZW11tQbmNOWOnRTljaU18FdI1b9ipT09SzzPDNw==}
-    peerDependencies:
-      '@capacitor/core': ^8.5.0
 
   '@capacitor/share@8.0.3':
     resolution: {integrity: sha512-gnvZBV1NPu2B8vd1UKncR56G15ueHd0aZLqgDov++t3SmTBG9Q0VrAZ1VnHn5stxlmglVaTb4RwopMgbpLzroA==}
@@ -7261,10 +7253,6 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.5.3
       '@capacitor/synapse': 1.0.4
-
-  '@capacitor/ios@8.5.3(@capacitor/core@8.5.3)':
-    dependencies:
-      '@capacitor/core': 8.5.3
 
   '@capacitor/share@8.0.3(@capacitor/core@8.5.3)':
     dependencies:

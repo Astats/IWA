@@ -90,7 +90,8 @@ describe('createPlatform on the web', () => {
   });
 });
 
-describe.each(['android', 'ios'] as const)('createPlatform on %s', (id) => {
+describe('createPlatform on Android', () => {
+  const id = 'android';
   beforeEach(() => {
     Object.assign(capacitor, { native: true, platform: id });
   });

@@ -4,7 +4,7 @@ import type { PostForm } from './native-oauth';
 
 /**
  * Form POST through Capacitor's native HTTP stack (outside the WebView, so no CORS and no
- * `Origin` header). Used only for OAuth code redemption on Android/iOS; global fetch patching
+ * `Origin` header). Used only for OAuth code redemption on Android; global fetch patching
  * (`CapacitorHttp.enabled`) stays off.
  */
 export const nativePostForm: PostForm = async (url, form) => {

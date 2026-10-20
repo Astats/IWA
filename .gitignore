@@ -34,7 +34,6 @@ keystore.properties
 
 # native
 android/app/release
-ios/App/Pods
 
 # editors / OS
 .vscode/*
