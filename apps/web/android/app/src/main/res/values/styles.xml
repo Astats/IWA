@@ -16,7 +16,9 @@
     </style>
 
 
+    <!-- Android 12+ draws the adaptive icon on this colour; older versions show @drawable/splash. -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
     </style>
 </resources>

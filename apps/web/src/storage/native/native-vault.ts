@@ -120,16 +120,17 @@ class MetaStore implements VaultStore {
 
   async readFile(name: string): Promise<Uint8Array | null> {
     assertSafeName(name);
-    const rows = await (await this.#db()).query<{ data: string }>(
-      'SELECT data FROM files WHERE name = ?',
-      [name],
-    );
+    const rows = await (
+      await this.#db()
+    ).query<{ data: string }>('SELECT data FROM files WHERE name = ?', [name]);
     return rows[0] ? base64ToBytes(rows[0].data) : null;
   }
 
   async writeFile(name: string, data: Uint8Array): Promise<void> {
     assertSafeName(name);
-    await (await this.#db()).exec(
+    await (
+      await this.#db()
+    ).exec(
       'INSERT INTO files (name, data) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET data = excluded.data',
       [name, bytesToBase64(data)],
     );

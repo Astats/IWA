@@ -1,4 +1,7 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
@@ -128,5 +131,34 @@ describe('Android FileProvider', () => {
     const entries = [...paths.matchAll(/<([\w-]+-path)\b[^>]*>/g)].map((m) => m[0]);
 
     expect(entries).toEqual(['<cache-path name="exports" path="exports/" />']);
+  });
+});
+
+describe('release builds (BUILD_PLAN 4.4, SEC-M08)', () => {
+  it('minifies, shrinks and never makes the release debuggable', () => {
+    const gradle = read('../../android/app/build.gradle');
+    const release = /release \{([\s\S]*?)\n {8}\}/.exec(gradle)?.[1] ?? '';
+
+    expect(release).toContain('minifyEnabled true');
+    expect(release).toContain('shrinkResources true');
+    expect(release).toContain('debuggable false');
+  });
+
+  it('signs with a keystore from outside the repository only', () => {
+    const gradle = read('../../android/app/build.gradle');
+
+    expect(gradle).toContain("System.getenv('BUDGET_KEYSTORE_PROPERTIES')");
+    expect(gradle).not.toMatch(/storePassword\s+['"]/);
+    expect(read('../../../../.gitignore')).toMatch(/^keystore\.properties$/m);
+  });
+
+  it('keeps the native versions in sync with package.json', () => {
+    // Through a variable: Vite rewrites `new URL('<literal>', import.meta.url)` into an asset URL.
+    const relative = '../../scripts/sync-native-version.mjs';
+    const script = fileURLToPath(new URL(relative, import.meta.url));
+
+    expect(() =>
+      execFileSync(process.execPath, [script, '--check'], { stdio: 'pipe' }),
+    ).not.toThrow();
   });
 });

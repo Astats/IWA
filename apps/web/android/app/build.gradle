@@ -7,8 +7,8 @@ android {
         applicationId "com.astats.budget"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 400
+        versionName "0.4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -20,10 +20,33 @@ android {
         // SQLCipher and the plugin both ship this file (capacitor-community/sqlite README).
         exclude 'build-data.properties'
     }
+    // Release signing (BUILD_PLAN 4.4, docs/mobile-release.md): the upload keystore and its
+    // passwords live outside the repository, in a properties file named by BUDGET_KEYSTORE_PROPERTIES
+    // (default ~/.budget-app/keystore.properties). Without it, release builds are unsigned.
+    def keystorePropertiesFile = file(System.getenv('BUDGET_KEYSTORE_PROPERTIES') ?:
+        "${System.getProperty('user.home')}/.budget-app/keystore.properties")
+    def keystoreProperties = new Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+    }
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            upload {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // SEC-M08: minified and shrunk, never debuggable (the release default).
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePropertiesFile.exists()) signingConfig signingConfigs.upload
         }
     }
 }
