@@ -91,7 +91,13 @@
     "failed": "Unlock failed. Check your passphrase and try again.",
     "wait": "Too many attempts. Try again in {{seconds}} s.",
     "corrupt": "Your stored data could not be read. Restore a backup to continue.",
-    "unsupported": "This data was created by a newer version of the app. Please update the app."
+    "unsupported": "This data was created by a newer version of the app. Please update the app.",
+    "biometric": "Unlock with fingerprint or face",
+    "biometricPrompt": "Unlock Budget",
+    "usePassphrase": "Use passphrase",
+    "biometricFailed": "Biometric unlock did not work. Use your passphrase.",
+    "biometricLockedOut": "Too many attempts. Biometrics are blocked for now; use your passphrase.",
+    "biometricInvalidated": "Biometric unlock was turned off because the fingerprints or faces on this device changed. Unlock with your passphrase and turn it on again in Settings."
   },
   "lock": {
     "locked": "Budget is locked"
@@ -419,7 +425,17 @@
     "newPassphrase": "New passphrase",
     "changePassphraseSubmit": "Change passphrase",
     "passphraseChanged": "Passphrase changed.",
-    "passphraseChangeFailed": "The passphrase could not be changed. Check your current passphrase."
+    "passphraseChangeFailed": "The passphrase could not be changed. Check your current passphrase.",
+    "biometric": {
+      "title": "Fingerprint or face unlock",
+      "intro": "Unlock with the fingerprints or faces set up on this device. Your passphrase keeps working, and you still need it if they change.",
+      "on": "Biometric unlock is on.",
+      "off": "Biometric unlock is off.",
+      "confirm": "Enter your passphrase to turn biometric unlock on.",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "failed": "Biometric unlock could not be turned on. Check your passphrase and try again."
+    }
   },
   "validation": {
     "required": "This field is required.",

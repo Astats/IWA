@@ -3,7 +3,7 @@ import { createStore, type StoreApi } from 'zustand/vanilla';
 
 import type { StorageKind } from '@/storage/worker-api';
 
-import type { VaultResult, VaultService } from './services';
+import type { BiometricPromptText, BiometricResult, VaultResult, VaultService } from './services';
 
 export type SessionStatus = 'checking' | 'no-vault' | 'locked' | 'unlocked' | 'error';
 
@@ -20,6 +20,8 @@ export interface SessionState {
     setup: Pick<Settings, 'baseCurrency' | 'locale'>,
   ) => Promise<VaultResult>;
   unlock: (passphrase: string) => Promise<VaultResult>;
+  /** Native only: unlock through the system biometric prompt (BUILD_PLAN 4.3). */
+  unlockWithBiometrics: (prompt: BiometricPromptText) => Promise<BiometricResult>;
   lock: () => Promise<void>;
 }
 
@@ -73,6 +75,13 @@ export function createSessionStore(
 
       async unlock(passphrase) {
         const result = await vault.unlock(passphrase);
+        if (result.ok) await becomeUnlocked();
+        return result;
+      },
+
+      async unlockWithBiometrics(prompt) {
+        if (!vault.biometrics) return { ok: false, error: 'FAILED' };
+        const result = await vault.biometrics.unlock(prompt);
         if (result.ok) await becomeUnlocked();
         return result;
       },

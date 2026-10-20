@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useRepositories, useServices } from '@/di';
 import { useRecordBackup } from '@/hooks/useBackupReminder';
+import { usePickerTrip } from '@/hooks/usePickerTrip';
 
 import { BackupStatus } from './BackupReminder';
 import { CloudBackup } from './CloudBackup';
@@ -95,6 +96,7 @@ function DownloadBackup() {
 function RestoreFromFile() {
   const { t } = useTranslation();
   const fileId = useId();
+  const pickerTrip = usePickerTrip();
   const [file, setFile] = useState<File | null>(null);
 
   return (
@@ -119,6 +121,7 @@ function RestoreFromFile() {
                 id={fileId}
                 type="file"
                 accept=".bgtb,application/octet-stream"
+                onClick={pickerTrip}
                 className="text-sm file:mr-2 file:rounded-md file:border file:bg-transparent file:px-2 file:py-1"
                 onChange={(e) => {
                   setFile(e.target.files?.[0] ?? null);

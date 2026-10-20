@@ -56,7 +56,7 @@ export function AppShell() {
   const { t } = useTranslation();
   const lock = useSession((s) => s.lock);
   const storagePersisted = useSession((s) => s.storagePersisted);
-  const { vault } = useServices();
+  const { vault, platform } = useServices();
   const settings = useSettingsSync();
   // One navigation in the DOM at a time: sidebar on large screens, bottom bar on small ones.
   const desktop = useMediaQuery('(min-width: 64rem)');
@@ -65,6 +65,8 @@ export function AppShell() {
     void lock();
   }, [lock]);
   useAutoLock(settings?.autoLockMinutes, onLock);
+  // Native apps lock when they go to the background (BUILD_PLAN 4.3); the web never calls this.
+  useEffect(() => platform.onBackground(onLock), [platform, onLock]);
 
   // Persist pending changes as soon as the page is hidden (tab switch, app backgrounded).
   useEffect(() => {

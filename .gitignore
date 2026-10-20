@@ -30,10 +30,10 @@ __screenshots__/
 *.jks
 *.p12
 *.pem
+keystore.properties
 
 # native
 android/app/release
-ios/App/Pods
 
 # editors / OS
 .vscode/*

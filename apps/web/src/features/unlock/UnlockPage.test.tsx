@@ -74,4 +74,73 @@ describe('UnlockPage', () => {
 
     expect(await axe(app.container)).toHaveNoViolations();
   });
+
+  it('offers no biometric unlock on the web or when it is turned off', async () => {
+    renderApp({ unlocked: false });
+    await screen.findByRole('heading', { name: 'Unlock Budget' });
+    expect(screen.queryByRole('button', { name: /fingerprint/ })).not.toBeInTheDocument();
+  });
+
+  it('hides biometric unlock when it is on but the device has no biometrics now', async () => {
+    const app = renderApp({ unlocked: false, biometrics: { enabled: true, available: false } });
+    await screen.findByRole('heading', { name: 'Unlock Budget' });
+    await vi.waitFor(() => {
+      expect(app.services.vault.biometrics?.isAvailable).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByRole('button', { name: /fingerprint/ })).not.toBeInTheDocument();
+  });
+
+  it('unlocks with biometrics and returns to the page that was open', async () => {
+    const app = renderApp({ unlocked: false, route: '/settings', biometrics: { enabled: true } });
+
+    await app.user.click(
+      await screen.findByRole('button', { name: 'Unlock with fingerprint or face' }),
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Settings', level: 1 })).toBeInTheDocument();
+    expect(app.services.vault.biometrics?.unlock).toHaveBeenCalledWith({
+      title: 'Unlock Budget',
+      cancel: 'Use passphrase',
+    });
+  });
+
+  it('stays quiet when the prompt is cancelled', async () => {
+    const app = renderApp({
+      unlocked: false,
+      biometrics: { enabled: true, result: { ok: false, error: 'CANCELLED' } },
+    });
+
+    await app.user.click(
+      await screen.findByRole('button', { name: 'Unlock with fingerprint or face' }),
+    );
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Passphrase', { exact: true })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['LOCKED_OUT', 'Biometrics are blocked for now', true],
+    ['FAILED', 'Biometric unlock did not work.', true],
+    ['INVALIDATED', 'Biometric unlock was turned off', false],
+  ] as const)('explains %s and falls back to the passphrase', async (error, text, stillOffered) => {
+    const app = renderApp({
+      unlocked: false,
+      biometrics: { enabled: true, result: { ok: false, error } },
+    });
+
+    await app.user.click(
+      await screen.findByRole('button', { name: 'Unlock with fingerprint or face' }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(text);
+    expect(screen.queryByRole('button', { name: /fingerprint/ }) !== null).toBe(stillOffered);
+  });
+
+  it('has no axe violations with biometric unlock', async () => {
+    const app = renderApp({ unlocked: false, biometrics: { enabled: true } });
+    await screen.findByRole('button', { name: 'Unlock with fingerprint or face' });
+
+    expect(await axe(app.container)).toHaveNoViolations();
+  });
 });

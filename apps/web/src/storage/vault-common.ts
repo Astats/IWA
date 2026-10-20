@@ -7,7 +7,7 @@ import {
 
 import type { VaultErrorCode } from './worker-api';
 
-/** Shared by the storage worker (web) and the native vault (Android/iOS). */
+/** Shared by the storage worker (web) and the native vault (Android). */
 
 const MAX_UNLOCK_DELAY_MS = 30_000;
 

@@ -11,5 +11,4 @@ TEST_PLAN.md
 **/*.generated.ts
 test-data/
 apps/web/android/
-apps/web/ios/
 apps/web/src/components/ui/

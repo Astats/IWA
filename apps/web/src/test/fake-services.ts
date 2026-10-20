@@ -4,7 +4,13 @@ import { parseAndValidateCsv } from '@budget/core/csv';
 import { createInMemoryRepositories, testKdfParams } from '@budget/core/testing';
 import { vi } from 'vitest';
 
-import type { AppServices, VaultResult, VaultService } from '@/di';
+import type {
+  AppServices,
+  BiometricResult,
+  BiometricUnlock,
+  VaultResult,
+  VaultService,
+} from '@/di';
 import { createWebPlatform } from '@/platform';
 
 export const TEST_PASSPHRASE = 'tulip river quiet lamp 2026';
@@ -15,10 +21,18 @@ export interface FakeVaultOptions {
   passphrase?: string;
   repos?: Repositories;
   persisted?: boolean;
+  /** Native-style biometric unlock; absent (the web) unless given. */
+  biometrics?: { available?: boolean; enabled?: boolean; result?: BiometricResult };
 }
 
 export interface FakeVault extends VaultService {
-  state: { hasVault: boolean; unlocked: boolean; passphrase: string; failedAttempts: number };
+  state: {
+    hasVault: boolean;
+    unlocked: boolean;
+    passphrase: string;
+    failedAttempts: number;
+    biometricEnabled: boolean;
+  };
   repos: Repositories;
 }
 
@@ -33,6 +47,30 @@ export function createFakeVault(options: FakeVaultOptions = {}): FakeVault {
     unlocked: options.unlocked ?? true,
     passphrase: options.passphrase ?? TEST_PASSPHRASE,
     failedAttempts: 0,
+    biometricEnabled: options.biometrics?.enabled ?? false,
+  };
+  const bio = options.biometrics;
+  const biometrics: BiometricUnlock | undefined = bio && {
+    isAvailable: vi.fn(() => Promise.resolve(bio.available ?? true)),
+    isEnabled: vi.fn(() => Promise.resolve(state.biometricEnabled)),
+    enable: vi.fn((passphrase: string): Promise<VaultResult> => {
+      if (!state.unlocked) return Promise.resolve({ ok: false, error: 'LOCKED' });
+      if (passphrase !== state.passphrase) {
+        return Promise.resolve({ ok: false, error: 'WRONG_PASSPHRASE' });
+      }
+      state.biometricEnabled = true;
+      return Promise.resolve({ ok: true });
+    }),
+    disable: vi.fn(() => {
+      state.biometricEnabled = false;
+      return Promise.resolve();
+    }),
+    unlock: vi.fn((): Promise<BiometricResult> => {
+      const result = bio.result ?? { ok: true };
+      if (result.ok) state.unlocked = true;
+      else if (result.error === 'INVALIDATED') state.biometricEnabled = false;
+      return Promise.resolve(result);
+    }),
   };
   const files = new Map<string, Uint8Array>();
   const vault: FakeVault = {
@@ -83,6 +121,7 @@ export function createFakeVault(options: FakeVaultOptions = {}): FakeVault {
     readFile: vi.fn((name: string) => Promise.resolve(files.get(name) ?? null)),
     createRepositories: () => repos,
     requestPersistentStorage: vi.fn(() => Promise.resolve(options.persisted ?? true)),
+    ...(biometrics && { biometrics }),
   };
   return vault;
 }

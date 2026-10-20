@@ -111,7 +111,6 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/dev-dist/**',
       'apps/web/android/**',
-      'apps/web/ios/**',
       // Deliberate violations used by tooling/lint-rules.test.ts; linted only from that test.
       'tooling/lint-fixtures/**',
       '**/*.generated.ts',

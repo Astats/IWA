@@ -2,13 +2,23 @@ import { testKdfParams } from '@budget/core/testing';
 import { FakePluginConnection } from '@budget/db/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DATA_DB, META_DB, NativeVault, type NativeSqlitePort } from './native-vault';
+import type { BiometricPromptText } from '@/di';
+
+import {
+  BiometricKeyError,
+  DATA_DB,
+  META_DB,
+  NativeVault,
+  type BiometricKeyPort,
+  type NativeSqlitePort,
+} from './native-vault';
 
 const PASSPHRASE = 'tulip river quiet lamp 2026';
 
 /**
  * In-memory stand-in for the plugin: databases survive "restarts" (new NativeVault instances),
  * and an encrypted database only opens with the secret it was created with — like SQLCipher.
+ * Like the plugin, setting or clearing the secret closes every open connection.
  */
 class FakePort implements NativeSqlitePort {
   secret: string | null = null;
@@ -17,9 +27,16 @@ class FakePort implements NativeSqlitePort {
   failOpen: string | null = null;
   /** Like the plugin when another database cannot be opened: stores the secret, then throws. */
   failSetAfterStore = false;
+  readonly #open = new Set<{ closed: boolean }>();
+
+  #closeAll() {
+    for (const handle of this.#open) handle.closed = true;
+    this.#open.clear();
+  }
 
   isSecretStored = vi.fn(() => Promise.resolve(this.secret !== null));
   setSecret = vi.fn((secret: string) => {
+    this.#closeAll();
     if (this.secret !== null) return Promise.reject(new Error('a passphrase has already been set'));
     this.secret = secret;
     this.secretWrites.push(secret);
@@ -27,6 +44,7 @@ class FakePort implements NativeSqlitePort {
     return Promise.resolve();
   });
   clearSecret = vi.fn(() => {
+    this.#closeAll();
     this.secret = null;
     return Promise.resolve();
   });
@@ -41,9 +59,25 @@ class FakePort implements NativeSqlitePort {
     } else if (db.key !== key) {
       throw new Error('file is not a database');
     }
+    const handle = { closed: false };
+    this.#open.add(handle);
+    const conn = new Proxy(db.conn, {
+      get(target, prop, receiver) {
+        const value: unknown = Reflect.get(target, prop, receiver);
+        if (typeof value !== 'function') return value;
+        return (...args: unknown[]): unknown =>
+          handle.closed
+            ? Promise.reject(new Error(`No available connection for database ${name}`))
+            : (value as (...a: unknown[]) => unknown).apply(target, args);
+      },
+    });
     return {
-      conn: db.conn,
-      close: () => Promise.resolve(),
+      conn,
+      close: () => {
+        handle.closed = true;
+        this.#open.delete(handle);
+        return Promise.resolve();
+      },
       delete: () => {
         this.dbs.delete(name);
         return Promise.resolve();
@@ -119,6 +153,22 @@ describe('NativeVault', () => {
 
     await vault.unlock(PASSPHRASE);
     expect(port.secret).toBe(secret);
+  });
+
+  it('locks and unlocks again in the same process (the plugin closes the meta database)', async () => {
+    const vault = newVault();
+    await vault.createVault(PASSPHRASE);
+    await vault.saveFile('side.bin', new Uint8Array([1, 2]));
+    await vault.lock();
+
+    expect(await vault.unlock(PASSPHRASE)).toEqual({ ok: true });
+    expect(await vault.readFile('side.bin')).toEqual(new Uint8Array([1, 2]));
+    expect(await vault.changePassphrase(PASSPHRASE, 'meadow copper violin 2027')).toEqual({
+      ok: true,
+    });
+    await vault.lock();
+    expect(await vault.status()).toMatchObject({ hasVault: true, unlocked: false });
+    expect(await vault.unlock('meadow copper violin 2027')).toEqual({ ok: true });
   });
 
   it('rejects a wrong passphrase with a growing delay and never sets the secret', async () => {
@@ -227,5 +277,153 @@ describe('NativeVault', () => {
 
     await expect(vault.flush()).resolves.toBeUndefined();
     expect(await vault.requestPersistentStorage()).toBe(true);
+  });
+});
+
+/** The biometric key store: `read` releases the value only when the "user" passes the prompt. */
+class FakeBiometricKeys implements BiometricKeyPort {
+  available = true;
+  value: string | null = null;
+  /** What the next prompt does: release the value, or fail with this reason. */
+  outcome: 'pass' | BiometricKeyError['reason'] = 'pass';
+
+  isAvailable = vi.fn(() => Promise.resolve(this.available));
+  isStored = vi.fn(() => Promise.resolve(this.value !== null));
+  store = vi.fn((value: string) => {
+    this.value = value;
+    return Promise.resolve();
+  });
+  read = vi.fn((_prompt: BiometricPromptText) => {
+    if (this.value === null) return Promise.reject(new BiometricKeyError('MISSING'));
+    if (this.outcome !== 'pass') return Promise.reject(new BiometricKeyError(this.outcome));
+    return Promise.resolve(this.value);
+  });
+  remove = vi.fn(() => {
+    this.value = null;
+    return Promise.resolve();
+  });
+}
+
+describe('NativeVault biometric unlock (BUILD_PLAN 4.3)', () => {
+  const prompt = { title: 'Unlock Budget', cancel: 'Use passphrase' };
+  let keys: FakeBiometricKeys;
+  const newBioVault = () => new NativeVault(port, { ...options, biometrics: keys });
+
+  beforeEach(() => {
+    keys = new FakeBiometricKeys();
+  });
+
+  async function enabledAndLocked() {
+    const vault = newBioVault();
+    await vault.createVault(PASSPHRASE);
+    expect(await vault.biometrics?.enable(PASSPHRASE)).toEqual({ ok: true });
+    await vault.lock();
+    return vault;
+  }
+
+  it('is only offered when the vault has a biometric key port', () => {
+    expect(newVault().biometrics).toBeUndefined();
+    expect(newBioVault().biometrics).toBeDefined();
+  });
+
+  it('needs the unlocked vault and the right passphrase to turn on', async () => {
+    const vault = newBioVault();
+    expect(await vault.biometrics?.enable(PASSPHRASE)).toEqual({ ok: false, error: 'LOCKED' });
+
+    await vault.createVault(PASSPHRASE);
+    expect(await vault.biometrics?.enable('wrong passphrase 123')).toEqual({
+      ok: false,
+      error: 'WRONG_PASSPHRASE',
+    });
+    expect(keys.store).not.toHaveBeenCalled();
+    expect(await vault.biometrics?.isEnabled()).toBe(false);
+
+    expect(await vault.biometrics?.enable(PASSPHRASE)).toEqual({ ok: true });
+    expect(await vault.biometrics?.isEnabled()).toBe(true);
+    expect(keys.value).toBe(port.dbs.get(DATA_DB)?.key);
+  });
+
+  it('unlocks with the biometric key after a restart and the passphrase still works', async () => {
+    await enabledAndLocked();
+    const restarted = newBioVault();
+
+    expect(await restarted.biometrics?.unlock(prompt)).toEqual({ ok: true });
+    expect(keys.read).toHaveBeenCalledWith(prompt);
+    expect(await restarted.status()).toMatchObject({ unlocked: true, failedAttempts: 0 });
+    await restarted.lock();
+    expect(port.secret).toBeNull();
+    expect(await restarted.unlock(PASSPHRASE)).toEqual({ ok: true });
+  });
+
+  it.each(['CANCELLED', 'LOCKED_OUT', 'FAILED'] as const)(
+    'stays locked and keeps the key when the prompt ends with %s',
+    async (reason) => {
+      const vault = await enabledAndLocked();
+      keys.outcome = reason;
+
+      expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: false, error: reason });
+      expect(await vault.status()).toMatchObject({ unlocked: false, failedAttempts: 0 });
+      expect(keys.value).not.toBeNull();
+      expect(port.secret).toBeNull();
+    },
+  );
+
+  it('turns itself off when the key was invalidated or is missing', async () => {
+    const vault = await enabledAndLocked();
+    keys.outcome = 'INVALIDATED';
+
+    expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: false, error: 'INVALIDATED' });
+    expect(await vault.biometrics?.isEnabled()).toBe(false);
+    expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: false, error: 'INVALIDATED' });
+    expect(await vault.unlock(PASSPHRASE)).toEqual({ ok: true });
+  });
+
+  it('turns itself off when the released value does not open the ledger', async () => {
+    const vault = await enabledAndLocked();
+    keys.value = 'ab'.repeat(32);
+
+    expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: false, error: 'INVALIDATED' });
+    expect(keys.value).toBeNull();
+    expect(port.secret).toBeNull();
+
+    keys.value = 'not hex';
+    expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: false, error: 'INVALIDATED' });
+  });
+
+  it('changes the passphrase after a biometric unlock only with the old passphrase', async () => {
+    const vault = await enabledAndLocked();
+    await vault.biometrics?.unlock(prompt);
+    const next = 'meadow copper violin 2027';
+
+    expect(await vault.changePassphrase('wrong passphrase 123', next)).toEqual({
+      ok: false,
+      error: 'WRONG_PASSPHRASE',
+    });
+    expect(await vault.changePassphrase(PASSPHRASE, next)).toEqual({ ok: true });
+    await vault.lock();
+
+    expect(await vault.unlock(PASSPHRASE)).toMatchObject({ ok: false });
+    expect(await vault.biometrics?.unlock(prompt)).toEqual({ ok: true });
+    await vault.lock();
+    expect(await vault.unlock(next)).toEqual({ ok: true });
+  });
+
+  it('can be turned off, and a new vault removes a key left from an earlier one', async () => {
+    const vault = newBioVault();
+    await vault.createVault(PASSPHRASE);
+    await vault.biometrics?.enable(PASSPHRASE);
+    await vault.biometrics?.disable();
+    expect(await vault.biometrics?.isEnabled()).toBe(false);
+
+    keys.value = 'cd'.repeat(32);
+    port = new FakePort();
+    await new NativeVault(port, { ...options, biometrics: keys }).createVault(PASSPHRASE);
+    expect(keys.value).toBeNull();
+  });
+
+  it('reports biometrics as unavailable when the check fails', async () => {
+    keys.isAvailable.mockRejectedValueOnce(new Error('no hardware'));
+
+    expect(await newBioVault().biometrics?.isAvailable()).toBe(false);
   });
 });

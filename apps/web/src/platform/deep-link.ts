@@ -1,6 +1,6 @@
 /**
  * The app's private URL scheme (reverse domain of the appId, RFC 8252 §7.1). Registered in
- * android/app/src/main/AndroidManifest.xml and ios/App/App/Info.plist; a test keeps them in sync.
+ * android/app/src/main/AndroidManifest.xml; a test keeps them in sync.
  */
 export const APP_URL_SCHEME = 'com.astats.budget';
 
