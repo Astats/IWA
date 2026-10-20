@@ -72,4 +72,30 @@ describe('session store', () => {
 
     expect(store.getState().storagePersisted).toBe(false);
   });
+
+  it('unlockWithBiometrics unlocks on success and stays locked otherwise', async () => {
+    const prompt = { title: 'Unlock', cancel: 'Cancel' };
+    const ok = createSessionStore(createFakeVault({ unlocked: false, biometrics: {} }));
+    expect(await ok.getState().unlockWithBiometrics(prompt)).toEqual({ ok: true });
+    expect(ok.getState().status).toBe('unlocked');
+
+    const cancelled = createSessionStore(
+      createFakeVault({
+        unlocked: false,
+        biometrics: { result: { ok: false, error: 'CANCELLED' } },
+      }),
+    );
+    await cancelled.getState().refresh();
+    expect(await cancelled.getState().unlockWithBiometrics(prompt)).toEqual({
+      ok: false,
+      error: 'CANCELLED',
+    });
+    expect(cancelled.getState().status).toBe('locked');
+
+    const web = createSessionStore(createFakeVault({ unlocked: false }));
+    expect(await web.getState().unlockWithBiometrics(prompt)).toEqual({
+      ok: false,
+      error: 'FAILED',
+    });
+  });
 });

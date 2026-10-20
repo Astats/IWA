@@ -9,26 +9,37 @@ export interface SaveFileRequest {
   type: string;
 }
 
-/** Thrown by operations the current platform does not offer (yet). */
-export class PlatformUnsupportedError extends Error {
-  constructor(operation: string, platform: PlatformId) {
-    super(`${operation} is not supported on ${platform}`);
-    this.name = 'PlatformUnsupportedError';
-  }
+/** The system browser (Custom Tabs / SFSafariViewController) for OAuth sign-in on native. */
+export interface AuthBrowser {
+  open(url: string): Promise<void>;
+  /** Closes it where the platform allows (iOS); Android returns to the app on the redirect. */
+  close(): Promise<void>;
+  /** `handler` runs when the browser is closed or the app is in the foreground again. */
+  onClosed(handler: () => void): () => void;
 }
 
 /**
- * What differs between the browser and the native shells (BUILD_PLAN 4.1). UI code reaches it
- * through `useServices().platform` and never imports Capacitor directly.
+ * What differs between the browser and the native shells (BUILD_PLAN 4.1, 4.3). UI code reaches
+ * it through `useServices().platform` and never imports Capacitor directly.
  */
 export interface PlatformService {
   readonly id: PlatformId;
   isNative(): boolean;
-  /** Hands a file to the user: a download in the browser; the share sheet on native (Step 4.3). */
+  /** Hands a file to the user: a download in the browser; the share sheet on native. */
   saveFile(file: SaveFileRequest): Promise<void>;
   /**
-   * Handles app links for `path` (`com.astats.budget:/<path>`). Native only; on the web nothing
-   * ever arrives. Returns a function that removes the handler.
+   * Handles app links for `path` (`com.astats.budget:/<path>`, or `<scheme>:/<path>` when
+   * `scheme` is given). Native only; on the web nothing ever arrives. Returns a function that
+   * removes the handler.
    */
-  onDeepLink(path: string, handler: DeepLinkHandler): () => void;
+  onDeepLink(path: string, handler: DeepLinkHandler, scheme?: string): () => void;
+  /**
+   * `handler` runs when the app must lock because it went to the background (native only,
+   * SEC-M04). Trips started through `away` do not count unless they last too long.
+   */
+  onBackground(handler: () => void): () => void;
+  /** Runs `task` while the user is sent out of the app (share sheet, file picker, sign-in). */
+  away<T>(task: () => Promise<T>): Promise<T>;
+  /** Native only: the system browser for OAuth sign-in. */
+  readonly authBrowser?: AuthBrowser;
 }

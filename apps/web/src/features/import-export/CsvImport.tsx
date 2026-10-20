@@ -28,6 +28,7 @@ import {
 import { useRepositories, useServices } from '@/di';
 import { useFormatters } from '@/hooks/useFormatters';
 import { LEDGER_KEYS } from '@/hooks/useRepoMutation';
+import { usePickerTrip } from '@/hooks/usePickerTrip';
 import { timestampedName } from '@/lib/download';
 
 const PREVIEW_ROWS = 50;
@@ -53,6 +54,7 @@ export function CsvImport() {
   const queryClient = useQueryClient();
   const fmt = useFormatters();
   const fileId = useId();
+  const pickerTrip = usePickerTrip();
   const [file, setFile] = useState<File | null>(null);
   const [phase, setPhase] = useState<Phase>({ type: 'idle' });
   const [options, setOptions] = useState<ImportOptions>({
@@ -136,6 +138,7 @@ export function CsvImport() {
               id={fileId}
               type="file"
               accept=".csv,text/csv"
+              onClick={pickerTrip}
               className="text-sm file:mr-2 file:rounded-md file:border file:bg-transparent file:px-2 file:py-1"
               onChange={(e) => {
                 setFile(e.target.files?.[0] ?? null);

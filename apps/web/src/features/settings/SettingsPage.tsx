@@ -24,6 +24,8 @@ import { useFormatters } from '@/hooks/useFormatters';
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings';
 import { LOCALE_OPTIONS } from '@/i18n';
 
+import { BiometricSettings } from './BiometricSettings';
+
 // Explicit pick: settings edited elsewhere (backup retention) must not be reset by this form.
 const preferencesSchema = settingsSchema.pick({
   baseCurrency: true,
@@ -228,6 +230,7 @@ export function SettingsPage() {
             <ChangePassphraseForm />
           </CardContent>
         </Card>
+        <BiometricSettings />
       </div>
     </>
   );

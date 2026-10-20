@@ -11,12 +11,43 @@ import type { AppServices, VaultResult, VaultService } from '@/di';
 import { createDropboxSession } from '@/cloud/dropbox-session';
 import { createGoogleSession } from '@/cloud/google-session';
 import { createMicrosoftSession } from '@/cloud/microsoft-session';
+import { nativePostForm } from '@/cloud/native-http';
+import { createNativeOAuthSession } from '@/cloud/native-oauth';
+import { hasAuthBrowser, nativeOAuthConfigs } from '@/cloud/native-providers';
 import { parseCsvInWorker } from '@/features/import-export/csv-parser';
 import type { PlatformService } from '@/platform';
 import { createWorkerRepositories, startDbWorker } from '@/storage';
 
+/**
+ * Android/iOS: sign-in through the system browser and a deep link (BUILD_PLAN 4.3). Popups,
+ * MSAL and Google's GIS library do not work in the WebView.
+ */
+function nativeProviders(platform: PlatformService): BackupProvider[] {
+  if (!hasAuthBrowser(platform)) return [];
+  const env = import.meta.env;
+  const configs = nativeOAuthConfigs(platform, {
+    microsoft: env.VITE_MS_CLIENT_ID,
+    googleAndroid: env.VITE_GOOGLE_ANDROID_CLIENT_ID,
+    googleIos: env.VITE_GOOGLE_IOS_CLIENT_ID,
+    dropbox: env.VITE_DROPBOX_APP_KEY,
+  });
+  const deps = { platform, browser: platform.authBrowser, postForm: nativePostForm };
+  const providers: BackupProvider[] = [];
+  if (configs.onedrive) {
+    providers.push(new OneDriveProvider(createNativeOAuthSession(configs.onedrive, deps)));
+  }
+  if (configs.gdrive) {
+    providers.push(new GoogleDriveProvider(createNativeOAuthSession(configs.gdrive, deps)));
+  }
+  if (configs.dropbox) {
+    providers.push(new DropboxProvider(createNativeOAuthSession(configs.dropbox, deps)));
+  }
+  return providers;
+}
+
 /** Cloud providers whose OAuth client ids are configured in this build (BUILD_PLAN Phase 3). */
-function configuredProviders(): BackupProvider[] {
+function configuredProviders(platform: PlatformService): BackupProvider[] {
+  if (platform.isNative()) return nativeProviders(platform);
   const providers: BackupProvider[] = [];
   const msClientId = import.meta.env.VITE_MS_CLIENT_ID;
   if (msClientId) {
@@ -69,6 +100,15 @@ function createNativeVaultService(): VaultService {
       return loaded.createRepositories();
     },
     requestPersistentStorage: async () => (await vault).requestPersistentStorage(),
+    biometrics: {
+      isAvailable: async () => (await (await vault).biometrics?.isAvailable()) ?? false,
+      isEnabled: async () => (await (await vault).biometrics?.isEnabled()) ?? false,
+      enable: async (p) =>
+        (await (await vault).biometrics?.enable(p)) ?? { ok: false, error: 'STORAGE_FAILED' },
+      disable: async () => (await vault).biometrics?.disable(),
+      unlock: async (prompt) =>
+        (await (await vault).biometrics?.unlock(prompt)) ?? { ok: false, error: 'FAILED' },
+    },
   };
 }
 
@@ -107,7 +147,7 @@ export function createBrowserServices(
     parseCsv: parseCsvInWorker,
     kdfParams: PRODUCTION_KDF_PARAMS,
     appVersion: __APP_VERSION__,
-    backupProviders: createProviderRegistry([...configuredProviders(), ...extraProviders]),
+    backupProviders: createProviderRegistry([...configuredProviders(platform), ...extraProviders]),
     platform,
     now: () => new Date(),
   };

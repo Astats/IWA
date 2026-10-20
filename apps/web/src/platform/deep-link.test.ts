@@ -79,6 +79,22 @@ describe('DeepLinkRouter', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('routes a handler registered for another scheme only on that scheme', () => {
+    const router = new DeepLinkRouter();
+    const google = vi.fn();
+    const own = vi.fn();
+    router.on('/oauth2redirect', google, 'com.googleusercontent.apps.123-abc');
+
+    expect(router.dispatch('com.astats.budget:/oauth2redirect?code=x')).toBe(false);
+    expect(router.dispatch('com.googleusercontent.apps.123-abc:/oauth2redirect?code=g')).toBe(true);
+    expect(router.dispatch('com.googleusercontent.apps.999:/oauth2redirect?code=y')).toBe(false);
+
+    router.on('/oauth2redirect', own);
+    expect(router.dispatch('com.astats.budget:/oauth2redirect?code=o')).toBe(true);
+    expect((google.mock.calls[0]?.[0] as URLSearchParams).get('code')).toBe('g');
+    expect((own.mock.calls[0]?.[0] as URLSearchParams).get('code')).toBe('o');
+  });
+
   it('allows one handler per path, and a stale unsubscribe keeps the newer handler', () => {
     const router = new DeepLinkRouter();
     const first = vi.fn();

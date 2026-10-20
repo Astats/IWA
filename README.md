@@ -32,7 +32,7 @@ pnpm dev          # web app at http://localhost:5173
 
 ## Mobile (Capacitor)
 
-The native projects live in `apps/web/android` and `apps/web/ios` (appId `com.astats.budget`). Requirements: Android Studio with an Android SDK, and **JDK 21 or newer** for Gradle (Capacitor 8 compiles Java 21; Gradle 8.14 runs on JDK 21–24). iOS builds need a Mac with Xcode.
+The native projects live in `apps/web/android` and `apps/web/ios` (appId `com.astats.budget`). Requirements: Android Studio with an Android SDK, and **JDK 21** installed (`@capacitor/filesystem` compiles with a Java 21 toolchain, and Gradle 8.14 runs on JDK 21–24; Android Studio's bundled JDK 25 is too new, so set Settings → Build Tools → Gradle → Gradle JDK to the JDK 21). iOS builds need a Mac with Xcode.
 
 ```bash
 pnpm --filter web build

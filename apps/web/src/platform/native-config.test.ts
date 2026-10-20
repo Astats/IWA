@@ -32,7 +32,8 @@ describe('Capacitor config', () => {
 });
 
 describe('native storage (BUILD_PLAN 4.2)', () => {
-  it('turns SQLCipher on and keeps biometrics off until Step 4.3', () => {
+  // Biometric unlock (Step 4.3) keeps its own biometric-bound key; the plugin's gate stays off.
+  it("turns SQLCipher on and leaves the plugin's own biometric gate off", () => {
     const sqlite = config.plugins?.CapacitorSQLite as Record<string, unknown> | undefined;
 
     expect(sqlite).toMatchObject({
@@ -91,6 +92,41 @@ describe('app link registration', () => {
     const plist = read('../../ios/App/App/Info.plist');
     const urlTypes = /<key>CFBundleURLSchemes<\/key>\s*<array>([\s\S]*?)<\/array>/.exec(plist);
 
-    expect(urlTypes?.[1]?.trim()).toBe(`<string>${APP_URL_SCHEME}</string>`);
+    const schemes = [...(urlTypes?.[1] ?? '').matchAll(/<string>([^<]*)<\/string>/g)].map(
+      (m) => m[1],
+    );
+
+    expect(schemes).toContain(APP_URL_SCHEME);
+    // Besides the app's own scheme, only Google's reversed iOS client id (native sign-in).
+    for (const scheme of schemes.filter((s) => s !== APP_URL_SCHEME)) {
+      expect(scheme).toMatch(/^com\.googleusercontent\.apps\.[\w-]+$/);
+    }
+  });
+});
+
+describe('screen privacy (SEC-M04)', () => {
+  it('sets FLAG_SECURE on the Android activity', () => {
+    const activity = read('../../android/app/src/main/java/com/astats/budget/MainActivity.java');
+
+    expect(activity).toMatch(
+      /getWindow\(\)\.setFlags\(\s*WindowManager\.LayoutParams\.FLAG_SECURE,/,
+    );
+  });
+
+  it('covers the iOS window before the app switcher snapshot', () => {
+    const scene = read('../../ios/App/App/SceneDelegate.swift');
+
+    expect(scene).toContain('func sceneWillResignActive');
+    expect(scene).toContain('window.addSubview(cover)');
+    expect(scene).toContain('func sceneDidBecomeActive');
+  });
+});
+
+describe('Android FileProvider', () => {
+  it('exposes only the cache export folder to the share sheet', () => {
+    const paths = read('../../android/app/src/main/res/xml/file_paths.xml');
+    const entries = [...paths.matchAll(/<([\w-]+-path)\b[^>]*>/g)].map((m) => m[0]);
+
+    expect(entries).toEqual(['<cache-path name="exports" path="exports/" />']);
   });
 });

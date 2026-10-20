@@ -35,28 +35,33 @@ export function parseDeepLink(raw: string, scheme: string = APP_URL_SCHEME): Dee
 export type DeepLinkHandler = (params: URLSearchParams) => void;
 
 /**
- * Dispatches deep links to the handler registered for their exact path. Links for any other path
- * are dropped: a deep link never navigates the app or reaches code that did not ask for it.
+ * Dispatches deep links to the handler registered for their exact scheme and path. Links for any
+ * other path are dropped: a deep link never navigates the app or reaches code that did not ask for
+ * it. Handlers use the app's scheme unless they name another one (Google's iOS sign-in returns on
+ * the reversed client id).
  */
 export class DeepLinkRouter {
   readonly #handlers = new Map<string, DeepLinkHandler>();
 
   constructor(private readonly scheme: string = APP_URL_SCHEME) {}
 
-  /** One handler per path; returns a function that removes it. */
-  on(path: string, handler: DeepLinkHandler): () => void {
-    if (this.#handlers.has(path)) throw new Error(`A deep-link handler for ${path} already exists`);
-    this.#handlers.set(path, handler);
+  /** One handler per scheme and path; returns a function that removes it. */
+  on(path: string, handler: DeepLinkHandler, scheme: string = this.scheme): () => void {
+    const key = `${scheme.toLowerCase()}:${path}`;
+    if (this.#handlers.has(key)) throw new Error(`A deep-link handler for ${key} already exists`);
+    this.#handlers.set(key, handler);
     return () => {
-      if (this.#handlers.get(path) === handler) this.#handlers.delete(path);
+      if (this.#handlers.get(key) === handler) this.#handlers.delete(key);
     };
   }
 
   /** Returns true when a handler took the link. */
   dispatch(raw: string): boolean {
-    const link = parseDeepLink(raw, this.scheme);
+    const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(raw)?.[1]?.toLowerCase();
+    if (!scheme) return false;
+    const link = parseDeepLink(raw, scheme);
     if (!link) return false;
-    const handler = this.#handlers.get(link.path);
+    const handler = this.#handlers.get(`${scheme}:${link.path}`);
     if (!handler) return false;
     handler(link.params);
     return true;
