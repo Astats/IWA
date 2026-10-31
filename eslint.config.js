@@ -111,6 +111,8 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/dev-dist/**',
       'apps/web/android/**',
+      // Claude Code worktrees are full checkouts outside this repo's TypeScript projects.
+      '.claude/**',
       // Deliberate violations used by tooling/lint-rules.test.ts; linted only from that test.
       'tooling/lint-fixtures/**',
       '**/*.generated.ts',

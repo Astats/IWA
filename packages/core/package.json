@@ -16,7 +16,7 @@
     "dinero.js": "2.0.2",
     "papaparse": "5.7.0",
     "uuid": "14.0.2",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@faker-js/faker": "10.6.0",
